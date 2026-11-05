@@ -1,6 +1,0 @@
-/build*/
-/build-*.so
-/build-*.json
-/build-*.log
-/__pycache__/
-*.zip

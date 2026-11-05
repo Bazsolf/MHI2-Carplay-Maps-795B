@@ -1,6 +1,0 @@
-/build-*
-__pycache__/
-*.pyc
-/tests/revisions/**/verify
-
-/toolbox/.gitattributes

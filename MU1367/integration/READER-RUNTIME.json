@@ -1,9 +1,0 @@
-{
-  "version": "1.4.4-e",
-  "experimental": true,
-  "sha256": "3dc291619a06f2894dc1258135586431693078d9b3bc254fe78ca0bf71555073",
-  "source_sha256": "9d752c6976959963d9c389062aa95ad9c08d25bd4a3dbaded68eaa5ea56793b6",
-  "factory_libc_sha256": "485e2a5061f3e8d7cc9b7de54cb1f4387fe20ade5e0179ecefbbeebaf91be6bc",
-  "base_version": "1.4.3-e",
-  "vehicle_tested": false
-}
