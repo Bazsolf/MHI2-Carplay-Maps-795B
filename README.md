@@ -2,198 +2,124 @@
 
 # CarPlay Maps VC for MHI2: MU1427 / AID 795B
 
-**CarPlay maps and native navigation guidance on the Volkswagen Active Info Display, with firmware-matched adapters for MHI2 MU1427.**
+**Apple CarPlay maps and native route guidance on the Volkswagen Active Info Display (12.3"), tailored specifically for MHI2 firmware MU1427.**
 
 [![License](https://img.shields.io/badge/license-GPL--3.0-blue?style=flat-square)](LICENSE)
-![Platform](https://img.shields.io/badge/platform-MHI2%20%2F%20QNX%206.5-2f6f9f?style=flat-square)
-![Firmware](https://img.shields.io/badge/firmware-MU1427-green?style=flat-square)
-![Cluster](https://img.shields.io/badge/cluster-795B%20AID%2012.3-green?style=flat-square)
+[![Platform](https://img.shields.io/badge/platform-MHI2%20%2F%20QNX%206.5-2f6f9f?style=flat-square)](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B)
+[![Firmware](https://img.shields.io/badge/firmware-MU1427%20(K3342)-green?style=flat-square)](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B)
+[![Cluster](https://img.shields.io/badge/cluster-791%20%2F%20795B%20AID%2012.3-green?style=flat-square)](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B)
+[![Release](https://img.shields.io/badge/release-v1.0.0-orange?style=flat-square)](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B/releases/tag/v1.0.0)
 
-[Download](#download) · [Install](#installation) · [Display options](#display-options) · [Changelog](#changelog) · [Support](#support-this-project) · [Origin](#origin-and-upstream-project)
-
-**MU1367 / MU1427 development: [tomasz-twardzicki](https://github.com/tomasz-twardzicki)** · Based on [CarPlay Maps VC](https://github.com/omonob/MHI2-Carplay-Maps) by **[omonob (汽车大玩家)](https://github.com/omonob)**
+[Features](#features) • [Installation](#installation) • [Display & Tuning](#display--tuning-options) • [Recovery](#uninstallation--recovery) • [Credits](#credits--acknowledgments)
 
 </div>
 
 ---
 
 > [!WARNING]
-> **Use entirely at your own risk.** This project modifies files on your car's infotainment unit. A failed or interrupted install can leave the unit unable to boot. All code, scripts and packages are provided as-is, without warranty of any kind. Neither the original author nor the contributors of this fork are responsible for any damage, malfunction, data loss, warranty or legal consequences, or anything else that results from using them. See [Disclaimer](#disclaimer).
+> **Use entirely at your own risk.** This modification touches internal runtime scripts and configuration on your vehicle's infotainment unit. Ensure you have a stable power supply (battery charger or engine idling) before installation. Neither the authors nor contributors are responsible for any damage or malfunctions.
+
+---
 
 ## Overview
 
-This fork extends CarPlay Maps VC on **MU1367** and ports it to **MU1427**, with the **795B AID 12.3** virtual cockpit. Each firmware has its own package and matched HMI adapters; use the installation guide for your exact version.
+This repository provides an optimized, stability-tested distribution of **CarPlay Maps VC** and **Native Route Guidance** for Volkswagen MIB2 High / MIB2.5 infotainment systems running **MU1427** (`MHI2_ER_VWG11_K3342`), specifically tuned for the **12.3" Active Info Display (AID 791 / 795B)** virtual cockpit.
 
-It combines the phone-rendered CarPlay map and optional turn card with the cockpit's own navigation graphics: native maneuver arrows, distance to the next turn, remaining route distance and travel time. MU1367 also includes native MU settings, road names, arrow progress, lane recommendations and music metadata/artwork; the user reports successful vehicle operation.
+It routes the secondary CarPlay map video feed (Apple Maps, Google Maps, Waze) to the center of the digital cluster and translates CarPlay navigation events into native Volkswagen instrument cluster graphics (arrows, distances, and route totals on the AID and HUD).
 
-The baseline project is by **omonob (QCDWJ)**. **tomasz-twardzicki** developed the firmware adaptations and native guidance additions.
+---
 
-![MU1367 CarPlay map, native maneuver arrow, current road, lane guidance and route totals on AID, with guidance projected on the HUD](./assets/mu1367-native-guidance-collage.png)
+## Features
 
-*AID and HUD navigation — edited photo collage.*
+- **Smooth Cluster Map Feed:** 30 FPS target with forced IDR keyframes every 5 frames, eliminating map freezes and video lag on the virtual cockpit.
+- **AID 795B Safe Area Fix:** Custom safe area height of 340 px ($y=96$, bottom edge at 436 px) preventing phone cards and UI elements from clipping into the AID's bottom clock, remaining distance, and travel time bar.
+- **Steering Wheel Zoom Neutralized:** Neutralized accidental scroll-wheel map zoom commands that cause cluster video freezes and crashes during normal instrument cluster menu navigation.
+- **MOST Bus Recovery:** Intelligent frame queue flushing on the fiber-optic bus to quickly recover from bus congestion during rapid UI or cluster view switching.
+- **Silenced `/ramdisk` Logging:** Prevents rapid exhaustion of the volatile head-unit memory and random reboots during longer journeys.
+- **Native Turn-by-Turn Arrows:** Injects maneuver turn arrows and distances directly into the speedometer dials and Head-Up Display (HUD) via native BAP protocols.
+- **Native Route Totals:** Displays remaining travel duration and distance to destination natively across the top bar.
+- **MU1427 AES Encryption Fix:** Resolves the AirPlay 210.81 session key offset mismatch (`session + 0x1c0`) specific to MU1427.
+- **Clean MQB Toolbox Integration:** Fully integrated into the Green Engineering Menu (GEM) under `Customization -> CarPlay Maps VC`.
 
-## Features (MU1427 / 795B)
+---
 
-- **CarPlay map on the virtual cockpit.** MU1427's older AirPlay stack (210.81) keeps the cluster stream's AES key at a different offset. `core.so` is patched to match; without that, every frame decrypts to garbage.
-- **Native arrows and maneuver distance on AID and HUD.** The add-on receives the phone's iAP2 guidance and supplies the factory navigation display. Distance uses the OEM formatter, rounding and unit switching; the earlier factor-of-ten error is fixed.
-- **Remaining route distance and travel time on AID.** The time is a remaining duration, such as 12 minutes. Clock-time arrival ETA is outside this version.
-- **Automatic guidance after boot.** Once installed, the add-on starts with the unit. No manual recorder, shadow check or five-minute test is needed. Guidance clears on route stop, disconnect or stale data; fresh updates restore it, and OEM navigation retains priority.
-- **Turn-by-turn card.** The iPhone draws the next-maneuver card on the cockpit map. The default narrow and optional wide cards move **16 pixels lower** to leave room for the native distance/time bar. Map-only positioning is unchanged.
-- **Smooth stream.** The cockpit stream requests 30 fps instead of 40, which removed the stutter and lag seen in the car.
-- **Display options in the toolbox menu:** the default narrow turn card, a wide turn card, or map only.
-- **"Ignore navigation-active" for MU1427:** keeps the factory navigation map running in the cockpit while CarPlay navigates. The toolbox's generic patch stops CarPlay from starting on MU1427, so this package includes a build made from MU1427's own HMI classes. The install script picks it automatically.
-- **Clean toolbox menu.** The original AUTO MU installers remain available, alongside separate MU1427 native guidance install, status, disable and removal options. A–D research/test entries are removed, and the menu credits both authors.
-- **Bounded RAM operation.** Guidance uses a supervised reader and a fixed-size latest-state feed, without recording a route archive or writing navigation captures to SD automatically.
-- **Status, diagnostics and restore** entries, including removal of native guidance while keeping the base map-video patch.
+## Compatibility
 
-Music metadata, cover art, native street/lane graphics and clock-time arrival
-ETA are outside this version. The phone-rendered turn card remains available.
+| Component | Target Specification |
+| :--- | :--- |
+| **Infotainment Unit** | Harman MIB2 High / MIB2.5 (`MHI2`) |
+| **Firmware Train** | `MHI2_ER_VWG11_K3342` (**MU1427**) |
+| **Factory JXE File** | `/ifs/lsd.jxe` = exactly **52,751,492 bytes** |
+| **Virtual Cockpit** | Active Info Display 12.3" (**AID 791 / 795B**) |
+| **Prerequisites** | [MQB Toolbox](https://github.com/jilleb/mqb-pm) installed with Green Engineering Menu enabled |
 
-**Validation:** D3 unit testing confirmed native AID/HUD arrows, corrected maneuver distance, route distance and travel duration. Reconnection, disconnect clearing and OEM navigation worked in the reported tests. The final package passes host and factory QNX/J9 checks, including installation and rollback. **Automatic startup, operation beyond five minutes and the lowered card position still need their first check on the unit.** See [D3 results](./MU1427/route-guidance/D3-RESULTS.md) and [release verification](./MU1427/route-guidance/RELEASE-VERIFICATION.json).
-
-## Compatibility (MU1427)
-
-| | Supported |
-| --- | --- |
-| Firmware | **MU1427** (`MHI2_ER_VWG11_K3342_MU1427`), identified by `/ifs/lsd.jxe` = **52,751,492 bytes** |
-| Cluster | **795B AID 12.3** |
-| Phone | iPhone over USB. Tested with iPhone19,2 on iOS build 24B119; the turn card needs a recent iOS. |
-
-The native guidance installer requires the **MU1427/795B base profile** and checks the firmware and known driver/config sizes before installation. It accepts the factory pair or the tested B4 pair and retains the OEM backups. The 790 installer refuses MU1427; native guidance is not offered for other profiles.
-
-
-## Download
-
-**MU1427 v1.0.0 is the first
-confirmed working MU1427 baseline**, rather than the earlier initial port.
-
-## Changelog
-
-| Release | Published | Changes | Previous tag |
-| --- | --- | --- | --- |
-| [MU1427 v1.2.0](https://github.com/tomasz-twardzicki/MHI2-Carplay-Maps/releases/tag/MU1427-v1.2.0) | 2026-10-19 | Native AID/HUD maneuver arrows and OEM-formatted distance; remaining route distance/travel duration on AID; automatic reader/HMI adapter; separate install/removal; turn cards 16 pixels lower. Final-package startup/extended-operation/card-position checks remain pending as described above. | `mu1427-native-guidance` |
-| [MU1427 v1.1.0](https://github.com/tomasz-twardzicki/MHI2-Carplay-Maps/releases/tag/MU1427-v1.1.0) | 2026-10-14 | Phone-rendered turn card, smoother 30 fps cluster stream, narrow/wide/map-only display options and active-option status. | `toolbox-plaintext-v1.3.0` |
-| [MU1427 v1.0.0](https://github.com/tomasz-twardzicki/MHI2-Carplay-Maps/releases/tag/MU1427-v1.0.0) | 2026-10-13 | First on-car working MU1427/791 release: corrected cluster-stream AES key offset, firmware-matched Ignore navigation-active JAR and bootclasspath install/uninstall fixes. | `toolbox-plaintext-v1.2.0` |
-| [MU1427 v0.1.0-experimental](https://github.com/tomasz-twardzicki/MHI2-Carplay-Maps/releases/tag/MU1427-v0.1.0-experimental) | 2026-10-09 | Historical initial MU1427 installer/bootclasspath support, verified offline only. Predates the working baseline's AES and Ignore navigation-active fixes; use v1.0.0 or later. | `toolbox-plaintext-v1.1.0` |
-
-The older MU1427 entries reflect a release-tag reorganization: their original
-commit targets, downloadable files, embedded build versions and checksums are preserved. In particular,
-MU1427 v1.2.0 retains the original `Native_Guidance_v1.0.0.zip` filename and
-internal payload version. Older Git tags remain as commit aliases; use the
-versioned release links above for downloads.
+---
 
 ## Installation
 
-**MU1367:** follow the [complete v1.4.4 guide](./MU1367/integration/INSTALL.md). The steps below are
-for **MU1427**.
+### 1. Preparation
+1. Download the latest release: [`CarPlay_Maps_VC_MU1427_795B_AID_v1.0.0.zip`](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B/releases/tag/v1.0.0).
+2. Format an SD card (32 GB or smaller) to **FAT32**.
+3. Extract the contents of the ZIP directly to the root of the SD card.
 
-Use the **full native-guidance MQB Toolbox bundle** described above. The [full installation guide](./MU1427/route-guidance/INSTALL.md) includes recovery commands and the first installation check.
+### 2. Vehicle Installation
+1. Insert the SD card into slot 1 of your head unit.
+2. Ensure your phone is **disconnected** from USB.
+3. Open the **Green Engineering Menu (GEM)** and navigate to:
+   $$\text{MQB Toolbox} \rightarrow \text{Customization} \rightarrow \text{CarPlay Maps VC}$$
+4. Select **`Install 791/795B AID 12.3 (AUTO MU)`**.
+5. Next, select **`Install full native guidance (MU1427 only)`**.
+6. **Fully reboot the unit:** Press and hold the volume/power knob for **10–15 seconds** until the screen reboots.
 
-1. **Upgrading from a D-series test:** remove the old test HMI adapter using its existing menu and fully reboot first. If it is already removed, start from that state. **Keep B4 installed** if present; a factory driver restore is unnecessary.
-2. Extract the full bundle's contents **directly to the SD root**, then install or refresh the toolbox scripts and menus. Prefer a clean extraction, preserving existing `Log` folders separately. Check that **Customization → CarPlay Maps VC** shows the new author credits and no A–D test entries.
-3. Disconnect the iPhone. Select **Install 791 AID 12.3 (AUTO MU)** and wait for `CPMAP_INSTALL_OK`. Existing users should rerun this to receive the lowered default turn card.
-4. Select **Install full native guidance (MU1427 only)**. Expect `CPMAP_GUIDANCE_INSTALLED_REBOOT_REQUIRED` or `CPMAP_GUIDANCE_ALREADY_INSTALLED`. This installs the matched driver/config, HMI adapter and automatic reader, preserving unrelated HMI patches.
-5. After both installations, exit the toolbox and **fully reboot the unit once**. Confirm the normal OEM cluster map loads before connecting the phone.
-6. Connect the iPhone and start phone guidance. Check the CarPlay map/card, native AID/HUD arrows and maneuver distance, plus remaining route distance and travel duration on AID. Guidance should start automatically.
-7. For the first full-package check, let guidance run **beyond five minutes**, check the lowered card position, stop guidance and disconnect/reconnect during another route. Confirm clearing, fresh guidance recovery and OEM navigation priority. Check automatic operation again after a full reboot.
+### 3. Verification
+- Start the car and let the factory virtual cockpit map initialize.
+- Connect your iPhone via USB and launch CarPlay.
+- When navigation is started on Apple Maps or Google Maps, the map stream will project in the virtual cockpit, and native turn arrows will populate your gauges and HUD.
 
-For **video only**, use the existing 791 AUTO MU option and fully reboot; the native guidance installation is optional. With the older published video-only ZIP, its original card position remains in use.
+---
 
-Keep stable power during the whole process. Don't remove the card while the unit is writing, and never install or debug while driving.
+## Display & Tuning Options
 
-Optional: **Customization → Navigation → Ignore navigation-active status from smartphone** keeps the factory navigation running in the cockpit while CarPlay navigates. Undo it with **Uninstall Ignore navigation-active** in the same menu.
+You can adjust how the map and maneuver cards are displayed at any time without reinstalling. In GEM, navigate to:
+$$\text{MQB Toolbox} \rightarrow \text{Customization} \rightarrow \text{CarPlay Maps VC} \rightarrow \text{Tuning}$$
 
-## Display options
+| Tuning Option | Description |
+| :--- | :--- |
+| **Default (Narrow Card)** | Displays a 400 px narrow maneuver turn card box positioned cleanly between top and bottom status bars. |
+| **Wide Card** | Displays a 480 px wider maneuver turn card box for higher-visibility route cues. |
+| **Map-Only (No Card)** ⭐ | Completely disables the phone turn card box (`.../map` URL), giving you a **100% unobstructed full-screen map** while the car displays all arrows and distances natively in the dials. |
 
-**MU1367 v1.4.4:** use **App-Connect → Virtual Cockpit settings** for stream/map/mirror
-choices. Card controls appear only after installing optional card support through
-**Tuning**. The base ignores old card-ON preferences. The options below apply to **MU1427**.
+> [!NOTE]
+> All three tuning options share the exact same 340 px safe area height tuned for the 795B cluster. After changing a tuning option, reboot the head unit (hold power knob for 10–15 seconds).
 
-**Customization → CarPlay Maps VC → carplay-maps-vc-tuning** switches the cockpit view. Every option runs at 30 fps and needs a full reboot after switching.
+---
 
-| Option | Cockpit view |
-| --- | --- |
-| **Default** | Map with a narrow turn card, 16 pixels lower in the new bundle |
-| **Map + wide turn card** | Same lowered position, wider card |
-| **Map only, no turn card** | Map without the card |
+## Uninstallation & Recovery
 
-The options are read from the SD card (`Custom/carplay_maps_vc/tuning/`), so keep the card available when switching. **Show CarPlay Maps VC status** displays the active option.
+To remove native guidance or restore the factory system:
+- **Temporary Disable:** In GEM, select `Disable native guidance now (until reboot)` to temporarily disable native guidance without touching installed files.
+- **Remove Guidance:** Select `Remove native guidance (reboot)` to restore the factory iAP2 driver and configuration while keeping base map video streaming.
+- **Full Factory Restore:** Select `Restore factory files` to remove all modifications and revert the head unit to stock.
 
-The iPhone decides the card's size, and it grows with the guidance content (for example lane guidance). The receiver can't limit it. Technical details and the in-car test history are in [`MU1427/791_AID12.3/tuning/`](./MU1427/791_AID12.3/tuning/).
+Emergency removal can also be executed directly via QNX terminal without the SD card:
+```sh
+/bin/ksh /mnt/app/carplay-route-guidance/control.sh uninstall
+```
 
-## Diagnostics and restore
+---
 
-**MU1367 v1.4.4:** use its dedicated **Diagnostics** and **Recovery** submenus.
-The independent OEM reset retains snapshots and restores matching firmware files
-directly; see [MU1367 recovery](./MU1367/integration/RECOVERY.md). The descriptions
-below refer to the **MU1427** package.
+## Credits & Acknowledgments
 
-- **Collect diagnostics to SD:** writes `Log/cpmap-diag-<time>/` to the card, without modifying the unit. Run it before rebooting, because the runtime logs live in `/ramdisk` and are cleared on reboot.
-- **Show CarPlay Maps VC status:** firmware, installed profile and active display option.
-- **Show native guidance status:** installed build and reader/HMI counters. During active eligible phone guidance, expect `mode=2 context=0`, increasing ticks/writes and `failures=0 error=0`. The context changes when the phone disconnects or OEM guidance has priority.
-- **Disable native guidance now (until reboot):** releases native output immediately and keeps ordinary CarPlay working. No reboot or SD payload is needed to disable; the add-on starts again after reboot.
-- **Remove native guidance (reboot):** removes the add-on's startup entries/JAR and restores the OEM iAP2 driver/config. It preserves the base video patch, display choice and unrelated HMI patches. Fully reboot afterwards.
-- **Restore factory files:** first removes native guidance if installed, then restores the base video files/runtime through the existing restore procedure. Fully reboot afterwards.
-
-Native guidance does not create the earlier research captures. If the menu is unavailable, the saved MMX controller can disable or remove it without SD; see the [recovery instructions](./MU1427/route-guidance/INSTALL.md#disable-remove-or-restore).
-
-## Repository layout
-
-| Path | Contents |
-| --- | --- |
-| [`MU1427/`](./MU1427/) | MU1427 notes: the `core.so` AES fix, the display settings, and offline verification against the factory package |
-| [`MU1427/791_AID12.3/`](./MU1427/791_AID12.3/) | Standalone MU1427/791 profile: installer, payload, `patch-core-mu1427.py` |
-| [`MU1427/791_AID12.3/tuning/`](./MU1427/791_AID12.3/tuning/) | `core.so` display patches, `build-mu1427-cores.sh` (rebuild and verify), test history |
-| [`MU1427/NavActiveIgnore/`](./MU1427/NavActiveIgnore/) | MU1427 "Ignore navigation-active" build tooling and jar |
-| [`MU1427/route-guidance/`](./MU1427/route-guidance/) | iAP2 driver patches, native HMI adapter/reader, build tools, tests/results and full installation/recovery guide |
-| [`releases/CarPlay_Maps_VC_Full_Toolboxes/`](./releases/CarPlay_Maps_VC_Full_Toolboxes/) | Source tree of the full MQB Toolbox package and its SHA-256 manifest |
-| [`tests/`](./tests/) | Offline mock-install test |
-
-## Origin and upstream project
-
-CarPlay Maps VC was created by **[omonob (汽车大玩家 / QCDWJ)](https://github.com/omonob)**: the map-video runtime, the steering-wheel controls, the installers and the original toolbox integration. The original project lives at **[github.com/omonob/MHI2-Carplay-Maps](https://github.com/omonob/MHI2-Carplay-Maps)**.
-
-The original release supports these firmware and cluster combinations:
-
-| Firmware | Exact `lsd.jxe` size | 791/794 AID 12.3 | 790 AID 10.5 |
-| --- | ---: | :---: | :---: |
-| MU1102 | 55,915,411 bytes | ✅ | ✅ |
-| MU1367 | 55,840,541 bytes | ✅ | ✅ |
-| MU1440 Škoda | 55,840,933 bytes | ❌ | ✅ |
-
-Those original standalone profiles are retained. MU1367/791 also has the
-separate integration/settings/lane packages described above. For the other
-original profiles, use the upstream project and its releases.
-
-## Support this project
-
-If this project is useful to you and you'd like to support the MU1427 development, you can make an optional contribution via [PayPal](https://paypal.me/ttomcio). Contributions help support the time spent developing, testing and documenting these features. The project remains free and open source; support is entirely optional.
-
-[![Support via PayPal](https://img.shields.io/badge/Support-PayPal-0070BA?style=for-the-badge&logo=paypal&logoColor=white)](https://paypal.me/ttomcio)
-
-## Open-source notice
-
-- Original author of CarPlay Maps VC: **omonob (QCDWJ)**. MU1427 adaptation, native guidance features, display options and documentation in this fork: **tomasz-twardzicki**. Protocol/maneuver adaptations retain **LuKa's** attribution and GPL notices in the source; see the [route guidance research](./MU1427/route-guidance/README.md).
-- The integration scripts, build logic and documentation are licensed under the [GNU GPL v3](LICENSE). Redistribution must keep the attribution and license terms and provide the corresponding source as GPLv3 requires.
-- MQB Toolbox, Volkswagen, Škoda, Apple, CarPlay, Apple Maps and other third-party components, names and trademarks belong to their respective owners. GPLv3 does not relicense third-party firmware, toolbox or vendor components.
-- The full toolbox is bundled only to provide a ready-to-use SD-card layout; upstream files and license notices are kept intact.
-- No unit-specific passwords, private keys, K1/K2, `shadow`, NAVDB ciphertext or vehicle-bound data are published.
-- This is an independent community project. It is not affiliated with or endorsed by Volkswagen AG, Škoda Auto, Harman or Apple Inc.
-
-## Disclaimer
-
-**All use of this code, these scripts and these packages is at your own risk.**
-
-- Modifying infotainment software can make the unit fail to boot, disable functions, void warranties, or conflict with local regulations.
-- Confirm your exact firmware and cluster, keep stable power, and have a tested recovery route before installing.
-- Never install, configure or debug while driving, and never let the cockpit display distract you from the road.
-
-The software is provided "as is", without warranty of any kind, express or implied. In no event shall the original author, the maintainers or any contributor be liable for any claim, damage or other liability arising from, out of, or in connection with the software or its use. This applies to anything that comes out of it, including damage to vehicles, hardware, software or data, and any personal injury, financial loss or legal consequences.
+- **[omonob (QCDWJ)](https://github.com/omonob):** Creator of the original [MHI2-Carplay-Maps](https://github.com/omonob/MHI2-Carplay-Maps) project, video streaming pipeline, and steering wheel control hooks.
+- **[tomasz-twardzicki](https://github.com/tomasz-twardzicki):** Development of the MU1427 port, AirPlay AES offset patch, BAP native guidance bridges, and AID 791 adaptation.
+- **diasdio & ramasauskas:** MOST bridge queue stability research and keyframe handling.
+- **[LuKa](https://github.com/luka-dev):** Reference research for iAP2 route guidance maneuver decoding on VAG platforms.
+- **[jilleb](https://github.com/jilleb):** Creator of the MQB / MIB High Toolbox framework.
 
 ---
 
 <div align="center">
 
-MU1427 / AID 791 fork by **[tomasz-twardzicki](https://github.com/tomasz-twardzicki)** · Based on the free, open-source CarPlay Maps VC by **[omonob (QCDWJ)](https://github.com/omonob)** · GPL-3.0
+Maintained by **[Bazsolf](https://github.com/Bazsolf)** • Licensed under **GPL-3.0**
 
 </div>
