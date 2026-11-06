@@ -5,8 +5,8 @@
 set -u
 ACTION=${1:-status}
 PAYLOAD=${2:-}
-BUILD_ID=MU1427-native-guidance-1.0.0-51896241
-JAR_SIZE=33310
+BUILD_ID=MU1427-native-guidance-1.1.0
+JAR_SIZE=55092
 READER_SIZE=16606
 M=""
 if [ -n "${CPMAP_TEST_ROOT:-}" ]; then M=$CPMAP_TEST_ROOT
@@ -92,7 +92,22 @@ if [ "$ACTION" = install ]; then
     [ "$(cat "$PAYLOAD/driver/VERSION" 2>/dev/null)" = MU1427-iAP2-RGI-B4-3760797a ] || fail PAYLOAD_DRIVER_VERSION
     regular "$PAYLOAD/driver-control.sh" || fail PAYLOAD_DRIVER_CONTROLLER
     if [ -f "$ROOT/VERSION" ]; then
-        [ "$(cat "$ROOT/VERSION")" = "$BUILD_ID" ] || fail DIFFERENT_RELEASE_REMOVE_AND_REBOOT_FIRST
+        if [ "$(cat "$ROOT/VERSION" 2>/dev/null)" != "$BUILD_ID" ]; then
+            native mount -uw /mnt/app >/dev/null 2>&1 || fail APP_REMOUNT
+            cp "$PAYLOAD/CarPlayRouteGuidanceD1.jar" "$JAR.new" || fail STAGE_JAR
+            [ "$(size "$JAR.new")" = "$JAR_SIZE" ] || fail STAGED_SIZE
+            chmod 644 "$JAR.new" || fail JAR_MODE
+            mv "$JAR.new" "$JAR" || fail JAR_REPLACE
+            echo "$BUILD_ID" > "$ROOT/VERSION" || fail STAGE_MARKER
+            cp "$PAYLOAD/rgi-observer" "$ROOT/reader.new" || fail STAGE_READER
+            [ "$(size "$ROOT/reader.new")" = "$READER_SIZE" ] || fail STAGED_SIZE
+            chmod 755 "$ROOT/reader.new" || fail READER_MODE
+            mv "$ROOT/reader.new" "$ROOT/rgi-observer" || fail READER_REPLACE
+            cp "$0" "$ROOT/control.sh" || fail BACKUP_CONTROLLER
+            sync
+            echo "CPMAP_GUIDANCE_INSTALLED_REBOOT_REQUIRED"
+            exit 0
+        fi
         [ "$(size "$JAR")" = "$JAR_SIZE" ] && [ "$(size "$ROOT/rgi-observer")" = "$READER_SIZE" ] || fail INSTALLED_PAYLOAD_SIZE
         [ "$(awk '/CarPlayRouteGuidanceD1.jar/{n++} END{print n+0}' "$LSD")" = 1 ] || fail INSTALLED_BOOT_ENTRY
         [ "$(awk '/CPMAP_GUIDANCE_AUTOSTART/{n++} END{print n+0}' "$LSD")" = 1 ] || fail INSTALLED_READER_ENTRY

@@ -8,7 +8,7 @@
 [![Platform](https://img.shields.io/badge/platform-MHI2%20%2F%20QNX%206.5-2f6f9f?style=flat-square)](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B)
 [![Firmware](https://img.shields.io/badge/firmware-MU1427%20(K3342)-green?style=flat-square)](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B)
 [![Cluster](https://img.shields.io/badge/cluster-791%20%2F%20795B%20AID%2012.3-green?style=flat-square)](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B)
-[![Release](https://img.shields.io/badge/release-v1.0.0-orange?style=flat-square)](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B/releases/tag/v1.0.0)
+[![Release](https://img.shields.io/badge/release-v1.1.0--experimental-yellow?style=flat-square)](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B/releases)
 
 [Features](#features) • [Installation](#installation) • [Display & Tuning](#display--tuning-options) • [Recovery](#uninstallation--recovery) • [Credits](#credits--acknowledgments)
 
@@ -37,7 +37,9 @@ It routes the secondary CarPlay map video feed (Apple Maps, Google Maps, Waze) t
 - **MOST Bus Recovery:** Intelligent frame queue flushing on the fiber-optic bus to quickly recover from bus congestion during rapid UI or cluster view switching.
 - **Silenced `/ramdisk` Logging:** Prevents rapid exhaustion of the volatile head-unit memory and random reboots during longer journeys.
 - **Native Turn-by-Turn Arrows:** Injects maneuver turn arrows and distances directly into the speedometer dials and Head-Up Display (HUD) via native BAP protocols.
-- **Native Route Totals:** Displays remaining travel duration and distance to destination natively across the top bar.
+- **Native Lane Guidance Arrows (v1.1.0-e):** Injects live lane recommendations (`[ ↑ | ↑ | ↱ ]`) directly into the digital cluster display.
+- **Top-Bar Street / Road Names (v1.1.0-e):** Transmits live current road and street names into the top status bar of the instrument cluster via native BAP `TurnToInfo`.
+- **Native Route Totals:** Displays remaining travel duration and distance to destination natively across the cluster.
 - **MU1427 AES Encryption Fix:** Resolves the AirPlay 210.81 session key offset mismatch (`session + 0x1c0`) specific to MU1427.
 - **Clean MQB Toolbox Integration:** Fully integrated into the Green Engineering Menu (GEM) under `Customization -> CarPlay Maps VC`.
 

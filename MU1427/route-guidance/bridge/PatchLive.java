@@ -16,19 +16,42 @@ public final class PatchLive implements Opcodes {
     }
     public static void main(String[] args) throws Exception {
         Path stock=Paths.get(args[0]), helpers=Paths.get(args[1]), output=Paths.get(args[2]);
-        String[] classes={"ManeuverDescriptor","DistanceToNextManeuver","RGStatus","LaneGuidance","DistanceToDestination","TimeToDestination"};
-        String[] methods={"fillManeuverDescriptor","setDistanceToNextManeuverStatusData","setRouteGuidanceStatus","computeFullLaneGuidanceList","setDistanceAndUnit","setTimeInfo"};
-        String[] hooks={"descriptor","distance","route","lanes","destinationDistance","destinationTime"};
+        String[] classes={"ManeuverDescriptor","DistanceToNextManeuver","RGStatus","LaneGuidance","DistanceToDestination","TimeToDestination","TurnToInfo"};
+        String[] methods={"fillManeuverDescriptor","setDistanceToNextManeuverStatusData","setRouteGuidanceStatus","computeFullLaneGuidanceList","setDistanceAndUnit","setTimeInfo","setTurnToInfoStatusData"};
+        String[] hooks={"descriptor","distance","route","lanes","destinationDistance","destinationTime","turnTo"};
         for (int i=0;i<classes.length;i++) {
             String name=BASE+classes[i]; ClassNode c=new ClassNode();
             new ClassReader(Files.readAllBytes(stock.resolve(name+".class"))).accept(c,ClassReader.SKIP_FRAMES);
             check(c.version==V1_5); // pinned converter output; NOT the unit VM target
             c.version=V1_2; // firmware J9 rejects version 49; installed NAI uses 46
-            MethodNode fill=method(c,methods[i]); check(fill.desc.endsWith(")V") && (fill.access&ACC_PRIVATE)!=0);
+            MethodNode fill=method(c,methods[i]); check(fill.desc.endsWith(")V") && (fill.access&(i==6?ACC_PROTECTED:ACC_PRIVATE))!=0);
             InsnList hook=new InsnList(); LabelNode original=new LabelNode();
             hook.add(new VarInsnNode(ALOAD,1)); hook.add(new MethodInsnNode(INVOKESTATIC,HELPER,hooks[i],fill.desc.replace(")V",")Z"),false));
             hook.add(new JumpInsnNode(IFEQ,original)); hook.add(new InsnNode(RETURN)); hook.add(original);
-            fill.instructions.insert(hook);
+            if(i!=3)fill.instructions.insert(hook);
+            else {
+                int iterators=0,routeGates=0,visibility=0;
+                for(AbstractInsnNode n:fill.instructions.toArray())if(n instanceof MethodInsnNode){
+                    MethodInsnNode call=(MethodInsnNode)n;
+                    if(!call.owner.equals("de/vw/mib/bap/mqbab2/common/api/navigation/NavigationService"))continue;
+                    String method=null,desc=null;
+                    if(call.name.equals("getLaneGuidance")){method="laneIterator";desc="Ljava/util/Iterator;";iterators++;}
+                    if(call.name.equals("getRouteGuidanceState")){method="descriptorRouteState";desc="I";routeGates++;}
+                    if(call.name.equals("isSetupLaneGuidanceActive")){method="lanesVisible";desc="Z";visibility++;}
+                    if(method!=null){call.setOpcode(INVOKESTATIC);call.owner=HELPER;call.name=method;call.desc="(Lde/vw/mib/bap/mqbab2/common/api/navigation/NavigationService;)"+desc;call.itf=false;}
+                }
+                check(iterators==2 && routeGates==1 && visibility==1);
+                MethodNode request=method(c,"getArray");
+                check(request.desc.equals("(Lde/vw/mib/bap/datatypes/BAPEntity;Lde/vw/mib/bap/functions/ArrayListener;)V"));
+                InsnList observedRequest=new InsnList();observedRequest.add(new VarInsnNode(ALOAD,1));
+                observedRequest.add(new MethodInsnNode(INVOKESTATIC,"com/cpmap/rgi/LaneEvidence","requested","(Lde/vw/mib/bap/datatypes/BAPEntity;)V",false));
+                request.instructions.insert(observedRequest);
+                MethodNode reply=method(c,"transmitStatus");
+                check(reply.desc.equals("(Lde/vw/mib/bap/functions/ArrayListener;Lde/vw/mib/bap/mqbab2/generated/navsd/serializer/LaneGuidance_StatusArray;)V"));
+                InsnList observedReply=new InsnList();observedReply.add(new VarInsnNode(ALOAD,2));
+                observedReply.add(new MethodInsnNode(INVOKESTATIC,"com/cpmap/rgi/LaneEvidence","assembled","(Lde/vw/mib/bap/mqbab2/generated/navsd/serializer/LaneGuidance_StatusArray;)V",false));
+                reply.instructions.insert(observedReply);
+            }
             if (i==4) {
                 MethodNode validity=method(c,"setValidityInformation");
                 InsnList guard=new InsnList(); LabelNode normal=new LabelNode();
@@ -91,7 +114,7 @@ public final class PatchLive implements Opcodes {
             }
             write(c,output);
         }
-        System.out.println("D3: all six replacements and all helpers target class 46");
+        System.out.println("D3: all seven replacements and all helpers target class 46");
     }
     static void write(ClassNode c,Path output) throws Exception {
         check(c.version==V1_2);

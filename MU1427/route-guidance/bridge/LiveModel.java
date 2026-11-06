@@ -9,26 +9,52 @@ import java.io.IOException;
 
 public final class LiveModel {
     static final int SNAP = 33088;
+    /* Phone apps send deltas: Apple Maps can stay silent while stopped or
+     * between distance steps. An active route is held while the producer
+     * heartbeat, session and route state remain valid, bounded by HOLD_MS of
+     * total message silence. Explicit state/session changes still clear it. */
+    static final long HOLD_MS = 180000;
     static final class Message {
         int id;
         long[] v = new long[21];
         byte[][] raw = new byte[21][];
         boolean[] has = new boolean[21];
         int[] components, order;
+        LaneData[] lanes=LaneData.EMPTY; boolean invalidLanes;
     }
     public static final class Frame {
         public final boolean active, validDistance;
         public final int main, direction, meters, remainingMeters, remainingSeconds;
         public final long progress, changed, epoch;
+        final LaneData[] lanes; final long laneAt;
+        public final String currentRoad; public final long roadAt;
+        public final int maneuverType;
         Frame(boolean a, int m, int d, int distance, long p, long c, long e) {
             this(a,m,d,distance,-1,-1,p,c,e);
         }
         Frame(boolean a, int m, int d, int distance, int remaining, int seconds, long p, long c, long e) {
+            this(a,m,d,distance,remaining,seconds,p,c,e,LaneData.EMPTY,-1);
+        }
+        Frame(boolean a,int m,int d,int distance,int remaining,int seconds,long p,long c,long e,LaneData[] values,long at) {
+            this(a,m,d,distance,remaining,seconds,p,c,e,values,at,"",-1);
+        }
+        Frame(boolean a,int m,int d,int distance,int remaining,int seconds,long p,long c,long e,LaneData[] values,long at,String road,long roadTime) {
+            this(a,m,d,distance,remaining,seconds,p,c,e,values,at,road,roadTime,-1);
+        }
+        Frame(boolean a,int m,int d,int distance,int remaining,int seconds,long p,long c,long e,LaneData[] values,long at,String road,long roadTime,int kind) {
+            maneuverType=kind;
+            currentRoad=road;roadAt=roadTime;
+            lanes=values;laneAt=at;
             remainingMeters=remaining; remainingSeconds=seconds;
             active=a; main=m; direction=d; meters=distance; validDistance=distance>=0;
             progress=p; changed=c; epoch=e;
         }
     }
+    private final LaneData.Cache laneCache=new LaneData.Cache();
+    public long roadFields, roadNonempty, laneMessages, neutralLanes, neutralBranches;
+    private boolean directRoad;
+    private long routeStatusAt=-1;
+    private String currentRoad=""; private long roadAt=-1;
     private long sec=-1, nsec=-1, wireSession=-1, high=0, seen=0;
     private long progress=0, changed=-1, epoch=0;
     private int state=-1, generation=0, distance=-1, distanceHead=-1, distanceGeneration=-1;
@@ -82,15 +108,33 @@ public final class LiveModel {
         int count=0;
         while (p<end) { require(end-p>=4 && ++count<=256); int n=be16(b,p); require(n>=4 && p+n<=end); p+=n; }
     }
+    // Bounded structural shape of a rejected message: keys and sizes only,
+    // plus component/state values. Never text content.
+    static String shape(byte[] b, int p, int length) {
+        StringBuffer s=new StringBuffer(); int end=p+length, count=0;
+        while (p<end && count<24) {
+            if (end-p<4) { s.append(count>0?",":"").append("tail:").append(end-p); break; }
+            int n=be16(b,p), key=be16(b,p+2);
+            if (count++>0) s.append(',');
+            s.append(key).append(':').append(n-4);
+            if (n<4 || p+n>end) { s.append("!"); break; }
+            if ((key==0 || key==1) && n-4<=8) { s.append('='); for (int i=p+4;i<p+n;i++) { int v=b[i]&255; s.append(Character.forDigit(v>>4,16)).append(Character.forDigit(v&15,16)); } }
+            p+=n;
+        }
+        if (length==0) s.append("empty");
+        return s.toString();
+    }
     static Message decode(int id, byte[] b, int p, int length) throws IOException {
+        int faultField=-1, start=p;
+        try {
         require(id==0x5201 || id==0x5202 || id==0x5204);
         Message m=new Message(); m.id=id; int end=p+length, count=0, angles=0, nestedCount=0;
         int[] schema=id==0x5201?ROUTE:id==0x5202?MANEUVER:LANE;
         while (p<end) {
-            require(end-p>=4 && ++count<=256); int n=be16(b,p), key=be16(b,p+2);
+            require(end-p>=4 && ++count<=256); int n=be16(b,p), key=be16(b,p+2);faultField=key;
             require(n>=4 && p+n<=end); int at=p+4, size=n-4; p+=n;
             if (key>=schema.length) continue;
-            int kind=schema[key]; boolean repeat=kind==-4 || kind==-5;
+            int kind=schema[key]; boolean repeat=kind==-4 || kind==-5 || id==0x5204 && key==0;
             require(!m.has[key] || repeat); m.has[key]=true;
             if (kind>0) {
                 require(size==kind); long value=0;
@@ -99,7 +143,7 @@ public final class LiveModel {
                 m.v[key]=value;
             } else if (kind==-1 || kind==-2) {
                 text(b,at,size,kind==-1?256:64);
-                if (id==0x5201 && (key==4 || key==19)) {
+                if (id==0x5201 && (key==3 || key==4 || key==19) || id==0x5202 && key==4) {
                     if (size>0 && b[at+size-1]==0) size--;
                     m.raw[key]=copy(b,at,size);
                 }
@@ -109,18 +153,32 @@ public final class LiveModel {
                 else {
                     int[] list=new int[size/2];
                     for (int i=0;i<list.length;i++) list[i]=be16(b,at+2*i);
-                    if (key==0) m.components=list; else m.order=list;
+                    if(key==0 && id==0x5204 && m.components!=null){
+                        require(m.components.length+list.length<=8);
+                        int[] both=new int[m.components.length+list.length];
+                        System.arraycopy(m.components,0,both,0,m.components.length);System.arraycopy(list,0,both,m.components.length,list.length);m.components=both;
+                    }else if (key==0) m.components=list; else m.order=list;
+                }
+            } else if(id==0x5204 && key==2) {
+                LaneData lane=LaneData.decode(b,at,size);
+                if(lane==null || m.lanes.length>=16)m.invalidLanes=true;
+                else {
+                    LaneData[] values=new LaneData[m.lanes.length+1];
+                    System.arraycopy(m.lanes,0,values,0,m.lanes.length);values[values.length-1]=lane;m.lanes=values;
                 }
             } else {
                 nested(b,at,at+size);
                 for (int q=at;q<at+size;q+=be16(b,q)) require(++nestedCount<=256);
             }
         }
+        if(id==0x5204 && m.components==null)m.components=new int[]{0x10};
         require(m.components!=null && m.components.length>0);
         for (int i=0;i<m.components.length;i++) for (int j=0;j<i;j++) require(m.components[i]!=m.components[j]);
         require(id==0x5201 || m.has[1]); return m;
+        }catch(java.io.IOException e){FeedRecovery.Fault f=new FeedRecovery.Fault(id,faultField);f.shape=shape(b,start,length);throw f;}
     }
     private void clearCache() {
+        laneCache.clear();routeStatusAt=-1;currentRoad="";roadAt=-1;directRoad=false;
         cache=new Message[32]; ages=new long[32]; order=new int[0];
         distance=-1; distanceHead=-1; distanceGeneration=-1; generation++;
         remainingMeters=remainingSeconds=-1;
@@ -132,13 +190,28 @@ public final class LiveModel {
         for (int i=0;i<cache.length;i++) if (cache[i]!=null && cache[i].v[1]==head()) return cache[i];
         return null;
     }
+    private String passedRoad(Message m) throws IOException {
+        // Only a forward transition within the same known route proves that
+        // a maneuver road is now behind us. An upcoming road is never enough.
+        if(m.id!=0x5201 || !m.has[13] || m.order.length==0 || (state!=1 && state!=6)
+            || m.has[1] && m.v[1]!=1 && m.v[1]!=6
+            || m.has[19] && source!=null && !equal(source,m.raw[19])
+            || m.has[4] && destination!=null && !equal(destination,m.raw[4]))return null;
+        for(int j=1;j<order.length;j++)if(order[j]==m.order[0]){
+            int passed=order[j-1];
+            for(int i=0;i<cache.length;i++)if(cache[i]!=null && cache[i].v[1]==passed)
+                return RoadName.decode(cache[i].raw[4]);
+            return "";
+        }
+        return null;
+    }
     private boolean apply(Message m) {
         boolean component=false;
         for (int i=0;i<m.components.length;i++) if (m.components[i]==0x10) component=true;
         if (!component) return false;
         if (m.id!=0x5201) {
             if (state!=1 && state!=3 && state!=4 && state!=5 && state!=6) return false;
-            if (m.id==0x5204) return true; // validated; no lane geometry is projected
+            if (m.id==0x5204) { laneCache.put((int)m.v[1],LaneData.ordered(m.lanes,m.invalidLanes));return true; }
             int slot=-1;
             for (int i=0;i<cache.length;i++) {
                 if (cache[i]==null) { if (slot<0) slot=i; }
@@ -172,8 +245,11 @@ public final class LiveModel {
             if (m.has[4]) destination=m.raw[4];
             if (m.has[13]) order=m.order;
         }
-        if (next!=1 && next!=6) remainingMeters=remainingSeconds=-1;
-        if (next==2) { cache=new Message[32]; distance=-1; }
+        if (next!=1 && next!=6) {remainingMeters=remainingSeconds=-1;currentRoad="";roadAt=-1;directRoad=false;}
+        if(m.has[16])laneCache.selected=(int)m.v[16];
+        if(m.has[18])laneCache.showing=m.v[18]==1;
+        if(next!=1 && next!=6){laneCache.showing=false;routeStatusAt=-1;}
+        if (next==2) { cache=new Message[32]; distance=-1;laneCache.clear(); }
         return true;
     }
     public Frame snapshot(byte[] b, long now, boolean bootstrap) throws IOException {
@@ -184,6 +260,7 @@ public final class LiveModel {
         require(count==Math.min(sequence,16) && (u32(b,36)!=0 || sequence==0) && (u32(b,36)==0 || session!=0));
         for (int i=48;i<64;i+=4) require(u32(b,i)==0);
         Message[] messages=new Message[(int)count]; byte[][] bytes=new byte[(int)count][];
+        FeedRecovery.Fault[] faults=new FeedRecovery.Fault[(int)count];
         int pos=64;
         boolean same=sec==s && nsec==ns && wireSession==session;
         if (same) require(sequence>=high);
@@ -192,7 +269,9 @@ public final class LiveModel {
             require(pos+16<=b.length); long seq=sequence-count+1+i;
             int id=u16(b,pos+4), length=u16(b,pos+6);
             require(u32(b,pos)==seq && u32(b,pos+8)==session && u32(b,pos+12)==0 && length<=2048 && pos+16+length<=b.length);
-            messages[i]=decode(id,b,pos+16,length); bytes[i]=copy(b,pos,16+length);
+            // A semantically invalid message is rejected alone; the envelope,
+            // ordering and overlap checks above/below still fail the snapshot.
+            try {messages[i]=decode(id,b,pos+16,length);}catch(FeedRecovery.Fault e){e.sequence=seq;faults[i]=e;} bytes[i]=copy(b,pos,16+length);
             byte[] previous=retained[(int)((seq-1)&15)];
             if (same && seq<=high && previous!=null && u32(previous,0)==seq) require(equal(previous,bytes[i]));
             pos+=16+length;
@@ -205,13 +284,29 @@ public final class LiveModel {
         else for (int i=0;i<count;i++) {
             long seq=sequence-count+1+i;
             if (seq>seen) {
+                GuidanceEvidence.message(s*1000003L^ns*31L^session,seq,messages[i],faults[i],now);
+                if (messages[i]==null) {
+                    // An unreadable route update may have carried an end or
+                    // state change: drop route state rather than guess.
+                    if (faults[i].message==0x5201) invalidate();
+                    continue;
+                }
+                String passed=passedRoad(messages[i]);
                 boolean accepted=apply(messages[i]);
+                if (!accepted) GuidanceEvidence.notApplied();
+                if(accepted && messages[i].id==0x5204)
+                    LaneEvidence.received(messages[i].lanes,(int)messages[i].v[1],messages[i].invalidLanes,now);
                 if (head()!=distanceHead || generation!=distanceGeneration || current()==null) distance=-1;
                 distanceHead=current()==null?-1:head(); distanceGeneration=generation;
                 if (accepted && seq>oldHigh && !bootstrap) {
                     progress++; changed=now;
                     Message m=messages[i];
+                    if(m.id==0x5201 && m.has[3]){roadFields++;if(RoadName.decode(m.raw[3]).length()>0)roadNonempty++;}
+                    if(m.id==0x5204){laneMessages++;for(int j=0;j<m.lanes.length;j++)if(m.lanes[j].recommendation==0){neutralLanes++;neutralBranches+=m.lanes[j].sides.length();}}
                     if (m.id==0x5201 && (state==1 || state==6)) {
+                        routeStatusAt=now;
+                        if(m.has[3]){currentRoad=RoadName.decode(m.raw[3]);roadAt=now;directRoad=currentRoad.length()>0;}
+                        else if(passed!=null && !directRoad){currentRoad=passed;roadAt=now;}
                         if (m.has[7]) remainingMeters=m.v[7]>=0 && m.v[7]<=Integer.MAX_VALUE?(int)m.v[7]:-1;
                         // Unsigned u64 input, bounded to factory RTT's 99h59m.
                         if (m.has[6]) remainingSeconds=m.v[6]>=0 && m.v[6]<=359940?(int)m.v[6]:-1;
@@ -224,9 +319,10 @@ public final class LiveModel {
         high=sequence; seen=sequence;
         return frame();
     }
+    private int maneuverType(){Message m=current();return m!=null && m.has[3]?(int)m.v[3]:-1;}
     public Frame frame() {
         int[] symbol=map(current());
-        return new Frame((state==1 || state==6) && changed>=0,symbol[0],symbol[1],distance,remainingMeters,remainingSeconds,progress,changed,epoch);
+        return new Frame((state==1 || state==6) && changed>=0,symbol[0],symbol[1],distance,remainingMeters,remainingSeconds,progress,changed,epoch,laneCache.current(),routeStatusAt,currentRoad,roadAt,maneuverType());
     }
     static int turn(int a) { int n=Math.abs(a); return n<=22?0:n<=67?(a<0?32:224):n<=112?(a<0?64:192):(a<0?96:160); }
     static int[] symbol(int main,int direction) { return new int[]{main,direction}; }

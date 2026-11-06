@@ -11,8 +11,10 @@ public final class MailboxReader {
     boolean baseline, ended;
     byte[] previous;
     long records;
+    long observedSerial=-1,observedKind=-1,observedNonce=-1;
     public MailboxReader(String p) { path=p; }
     public LiveModel.Frame next(long now) throws IOException {
+        observedSerial=observedKind=observedNonce=-1;
         FileInputStream in=new FileInputStream(path);
         byte[] bytes=new byte[LiveModel.SNAP+33]; int size=0;
         try {
@@ -23,6 +25,7 @@ public final class MailboxReader {
                 LiveModel.require(size<bytes.length);
             }
         } finally { in.close(); }
+        if(size>=32){observedSerial=LiveModel.u32(bytes,12);observedKind=LiveModel.u32(bytes,16);observedNonce=LiveModel.u32(bytes,24) | LiveModel.u32(bytes,28)<<32;}
         LiveModel.require(size>=32 && LiveModel.u32(bytes,0)==0x314d4752L && LiveModel.u32(bytes,4)==1
             && LiveModel.u32(bytes,8)==size);
         long number=LiveModel.u32(bytes,12), kind=LiveModel.u32(bytes,16), detail=LiveModel.u32(bytes,20);
@@ -45,7 +48,10 @@ public final class MailboxReader {
             else if (kind==3) LiveModel.require(size==32 && detail==5000);
             else if (kind==5) { LiveModel.require(size==32 && detail<=4); ended=true; }
             else LiveModel.require(false);
-            model.invalidate(); frame=model.frame();
+            // STALE only reports 5 s without a new phone message. Silence is
+            // bounded by HOLD_MS in the model and bridge, not a reset.
+            if (kind==3) GuidanceEvidence.quiet(now); else model.invalidate();
+            frame=model.frame();
         }
         serial=number; previous=complete; records++; return frame;
     }
