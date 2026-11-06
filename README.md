@@ -78,13 +78,21 @@ It routes the secondary CarPlay map video feed (Apple Maps, Google Maps, Waze) t
 3. Extract the contents of the ZIP directly to the root of the SD card.
 
 ### 2. Vehicle Installation
+
+> [!IMPORTANT]
+> **Installation Order (Required for Fresh Installs):**
+> Step 4 (`Install 791/795B AID 12.3 (AUTO MU)`) **must** be installed before Step 5 (`Install full native guidance`). The base video installer sets up the core runtime and unit profile (`MU1427/791`) that the native guidance script requires. Attempting to install native guidance first on an unpatched unit will halt with `CPMAP_GUIDANCE_FAIL=INSTALL_791_AUTO_MU_FIRST`.
+> *(Existing users already running CarPlay Maps VC can skip Step 4 and proceed directly to Step 5).*
+
 1. Insert the SD card into slot 1 of your head unit.
 2. Ensure your phone is **disconnected** from USB.
-3. Open the **Green Engineering Menu (GEM)** and navigate to:
-   $$\text{MQB Toolbox} \rightarrow \text{Customization} \rightarrow \text{CarPlay Maps VC}$$
-4. Select **`Install 791/795B AID 12.3 (AUTO MU)`**.
-5. Next, select **`Install full native guidance (MU1427 only)`**.
-6. **Fully reboot the unit:** Press and hold the volume/power knob for **10–15 seconds** until the screen reboots.
+3. Open the **Green Engineering Menu (GEM)**:
+   - On the main MQB Toolbox screen, tap **`Update Toolbox`** to copy the latest scripts into the head unit.
+   - Re-open GEM and navigate to:
+     $$\text{MQB Toolbox} \rightarrow \text{Customization} \rightarrow \text{CarPlay Maps VC}$$
+4. **Base Profile:** Select **`Install 791/795B AID 12.3 (AUTO MU)`**.
+5. **Native Guidance:** Select **`Install full native guidance (MU1427 only)`**.
+6. **Fully reboot the unit:** Press and hold the volume/power knob for **10–15 seconds** until the screen restarts.
 
 ### 3. Verification
 - Start the car and let the factory virtual cockpit map initialize.
