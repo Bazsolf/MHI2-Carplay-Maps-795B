@@ -103,14 +103,16 @@ It routes the secondary CarPlay map video feed (Apple Maps, Google Maps, Waze) t
 
 ## Display & Tuning Options
 
-You can adjust how the map and maneuver cards are displayed at any time without reinstalling. In GEM, navigate to:
+Out of the box, `Install 791/795B AID 12.3 (AUTO MU)` defaults to **Map-Only (No Card)** for an unobstructed 100% full-screen map, since native guidance already injects all turn arrows, distances, and street names natively into the dials and HUD.
+
+If you prefer having the CarPlay maneuver turn-box floating on the map screen, you can switch tuning options anytime without reinstalling. In GEM, navigate to:
 $$\text{MQB Toolbox} \rightarrow \text{Customization} \rightarrow \text{CarPlay Maps VC} \rightarrow \text{Tuning}$$
 
 | Tuning Option | Description |
 | :--- | :--- |
-| **Default (Narrow Card)** | Displays a 400 px narrow maneuver turn card box positioned cleanly between top and bottom status bars. |
+| **Map-Only (No Card)** ⭐ *(Default)* | Completely disables the phone turn card box (`.../map` URL), giving you a **100% unobstructed full-screen map** while the car displays all arrows, distances, and road names natively in the cluster. |
+| **Narrow Card** | Displays a 400 px narrow maneuver turn card box positioned cleanly between top and bottom status bars. |
 | **Wide Card** | Displays a 480 px wider maneuver turn card box for higher-visibility route cues. |
-| **Map-Only (No Card)** ⭐ | Completely disables the phone turn card box (`.../map` URL), giving you a **100% unobstructed full-screen map** while the car displays all arrows and distances natively in the dials. |
 
 > [!NOTE]
 > All three tuning options share the exact same 340 px safe area height tuned for the 795B cluster. After changing a tuning option, reboot the head unit (hold power knob for 10–15 seconds).
