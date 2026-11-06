@@ -23,7 +23,11 @@
 
 ## Overview
 
-This repository provides an optimized, stability-tested distribution of **CarPlay Maps VC** and **Native Route Guidance** for Volkswagen MIB2 High / MIB2.5 infotainment systems running **MU1427** (`MHI2_ER_VWG11_K3342`), specifically tuned for the **12.3" Active Info Display (AID 791 / 795B)** virtual cockpit.
+This repository provides an optimized distribution of **CarPlay Maps VC** and **Native Route Guidance** for Volkswagen MIB2 High / MIB2.5 infotainment systems running **MU1427** (`MHI2_ER_VWG11_K3342`), specifically tuned for the **12.3" Active Info Display (AID 791 / 795B)** virtual cockpit.
+
+> [!CAUTION]
+> **Experimental Release Notice (v1.1.0-e):**
+> Version `v1.1.0-e` adds native lane guidance arrows and top-bar street names. While the bytecode and IBM J9 class 46 compatibility have been verified against factory MU1427 dumps, **this experimental release has NOT yet completed extensive on-vehicle road testing**. If you prefer the thoroughly road-tested version without lane graphics, install the stable [v1.0.0 release](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B/releases/tag/v1.0.0).
 
 It routes the secondary CarPlay map video feed (Apple Maps, Google Maps, Waze) to the center of the digital cluster and translates CarPlay navigation events into native Volkswagen instrument cluster graphics (arrows, distances, and route totals on the AID and HUD).
 
