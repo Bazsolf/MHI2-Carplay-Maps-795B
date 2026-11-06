@@ -60,6 +60,16 @@ It routes the secondary CarPlay map video feed (Apple Maps, Google Maps, Waze) t
 
 ---
 
+## Navigation App Support
+
+| App | Cluster Map Feed | Turn Arrows & Distance | Lane Guidance & Street Names | Notes / Real-World Status |
+| :--- | :---: | :---: | :---: | :--- |
+| **Google Maps** ⭐ | ✅ | ✅ | ✅ | **100% Working & Verified.** Turn arrows, countdown distance, route totals, U-turns, and road names operate flawlessly. |
+| **Apple Maps** | ✅ | ⚠️ | ⚠️ | **Known Issue.** On newer iOS versions, Apple Maps repeatedly flips internal source identifiers mid-route, causing maneuver arrows to occasionally default to a straight arrow. |
+| **Waze** | ✅ | ❌ | ❌ | **iOS App Limitation.** Waze has not implemented the CarPlay cluster navigation protocol (`iAP2 0x5201/0x5202/0x5204`). |
+
+---
+
 ## Installation
 
 ### 1. Preparation
