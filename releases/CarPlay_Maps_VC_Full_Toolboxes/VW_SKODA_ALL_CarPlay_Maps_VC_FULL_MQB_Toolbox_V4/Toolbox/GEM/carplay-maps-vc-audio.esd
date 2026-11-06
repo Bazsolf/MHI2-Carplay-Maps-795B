@@ -1,0 +1,27 @@
+###########################################################################
+# CarPlay Maps VC - Now Playing Audio (MU1427 only)
+# Displays Title, Artist and Album in the Virtual Cockpit and HUD.
+###########################################################################
+screen carplay-maps-vc-audio carplay-maps-vc
+
+keyValue
+    value   String sys 0x00000000 0
+    label   "CarPlay Now Playing Audio (MU1427 only)"
+    poll    0
+
+keyValue
+    value   String sys 0x00000000 0
+    label   "Displays Title, Artist & Album in AID cluster / HUD"
+    poll    0
+
+script
+    value   sys 1 0x0100 "/eso/hmi/engdefs/scripts/mqb/cpmap_audio_install.sh"
+    label   "Install Now Playing text (MU1427, reboot)"
+
+script
+    value   sys 1 0x0100 "/eso/hmi/engdefs/scripts/mqb/cpmap_audio_status.sh"
+    label   "Show Now Playing text status"
+
+script
+    value   sys 1 0x0100 "/eso/hmi/engdefs/scripts/mqb/cpmap_audio_remove.sh"
+    label   "Remove Now Playing text (reboot)"

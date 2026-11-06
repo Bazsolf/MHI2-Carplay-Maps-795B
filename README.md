@@ -42,6 +42,7 @@ It routes the secondary CarPlay map video feed (Apple Maps, Google Maps, Waze) t
 - **Native Turn-by-Turn Arrows:** Injects maneuver turn arrows and distances directly into the speedometer dials and Head-Up Display (HUD) via native BAP protocols.
 - **Native Lane Guidance Arrows:** Injects live lane recommendations (`[ ↑ | ↑ | ↱ ]`) directly into the digital cluster display.
 - **Top-Bar Street / Road Names:** Transmits live current road and street names into the top status bar of the instrument cluster via native BAP `TurnToInfo`.
+- **Native Now Playing Track Text:** Displays real-time Track Title, Artist, and Album in the Virtual Cockpit Audio/Media screen and HUD via native BAP `CurrentStationInfo` when playing music via CarPlay (Spotify, Apple Music, etc.).
 - **Native Route Totals:** Displays remaining travel duration and distance to destination natively across the cluster.
 - **MU1427 AES Encryption Fix:** Resolves the AirPlay 210.81 session key offset mismatch (`session + 0x1c0`) specific to MU1427.
 - **Clean MQB Toolbox Integration:** Fully integrated into the Green Engineering Menu (GEM) under `Customization -> CarPlay Maps VC`.
@@ -92,7 +93,8 @@ It routes the secondary CarPlay map video feed (Apple Maps, Google Maps, Waze) t
      $$\text{MQB Toolbox} \rightarrow \text{Customization} \rightarrow \text{CarPlay Maps VC}$$
 4. **Base Profile:** Select **`Install 791/795B AID 12.3 (AUTO MU)`**.
 5. **Native Guidance:** Select **`Install full native guidance (MU1427 only)`**.
-6. **Fully reboot the unit:** Press and hold the volume/power knob for **10–15 seconds** until the screen restarts.
+6. **Now Playing Text (Optional):** Select **`Install Now Playing text (MU1427 only)`** (also available under the dedicated `CarPlay Now Playing Audio` submenu) to show live track title, artist, and album in the cluster dials and HUD.
+7. **Fully reboot the unit:** Press and hold the volume/power knob for **10–15 seconds** until the screen restarts.
 
 ### 3. Verification
 - Start the car and let the factory virtual cockpit map initialize.
@@ -121,8 +123,9 @@ $$\text{MQB Toolbox} \rightarrow \text{Customization} \rightarrow \text{CarPlay 
 
 ## Uninstallation & Recovery
 
-To remove native guidance or restore the factory system:
-- **Temporary Disable:** In GEM, select `Disable native guidance now (until reboot)` to temporarily disable native guidance without touching installed files.
+To remove native guidance, now playing text, or restore the factory system:
+- **Remove Now Playing Text:** In GEM, select `Remove Now Playing text (reboot)` to remove the audio metadata listener and restore stock BAP audio handling.
+- **Temporary Disable Guidance:** In GEM, select `Disable native guidance now (until reboot)` to temporarily disable native guidance without touching installed files.
 - **Remove Guidance:** Select `Remove native guidance (reboot)` to restore the factory iAP2 driver and configuration while keeping base map video streaming.
 - **Full Factory Restore:** Select `Restore factory files` to remove all modifications and revert the head unit to stock.
 

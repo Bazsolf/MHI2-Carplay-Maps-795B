@@ -8,7 +8,8 @@
 /Toolbox/apps/sshd/usr/sbin/start_sshd text eol=lf
 /Toolbox/apps/sshd/scp_wrapper text eol=lf
 /Toolbox/apps/sshd/etc/banner.txt text eol=lf
-# Keep the MU1427 adapter and LSD patches in Git: public forks cannot upload new LFS objects.
+# Keep the MU1427 adapter, audio and LSD patches in Git: public forks cannot upload new LFS objects.
 /Custom/carplay_native_guidance/*.jar binary -filter
+/Custom/carplay_now_playing/*.jar binary -filter
 /Modifications/Lsd/*.jar binary -filter
 /Modifications/Lsd/**/*.jar binary -filter

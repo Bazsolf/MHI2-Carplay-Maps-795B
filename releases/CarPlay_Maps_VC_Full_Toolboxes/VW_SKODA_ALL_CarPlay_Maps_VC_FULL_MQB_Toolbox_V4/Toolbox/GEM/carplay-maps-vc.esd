@@ -65,3 +65,15 @@ script
 script
     value   sys 1 0x0100 "/eso/hmi/engdefs/scripts/mqb/cpmap_guidance_remove.sh"
     label   "Remove native guidance (reboot)"
+
+script
+    value   sys 1 0x0100 "/eso/hmi/engdefs/scripts/mqb/cpmap_audio_install.sh"
+    label   "Install Now Playing text (MU1427 only)"
+
+script
+    value   sys 1 0x0100 "/eso/hmi/engdefs/scripts/mqb/cpmap_audio_status.sh"
+    label   "Show Now Playing text status"
+
+script
+    value   sys 1 0x0100 "/eso/hmi/engdefs/scripts/mqb/cpmap_audio_remove.sh"
+    label   "Remove Now Playing text (reboot)"
