@@ -27,7 +27,7 @@ This repository provides an optimized distribution of **CarPlay Maps VC**, **Nat
 
 > [!NOTE]
 > **v1.2.1-experimental:**
-> - **Seamless Reroute Holding:** Eliminates the route-initialization loading circle animation when Google Maps or Apple Maps recalculates/reroutes mid-journey. While calculating the new route, route guidance remains active with a straight placeholder arrow, preserving remaining distance and ETA without interruption.
+> - **Seamless Reroute Holding & Factory Recalculating Symbol:** Eliminates the route-initialization loading circle animation when Google Maps or Apple Maps recalculates/reroutes mid-journey. While calculating the new route, route guidance remains active with the factory OEM recalculating symbol (`mainElement = 10`), preserving remaining distance and ETA without interruption.
 > - **Now Playing Audio Text:** Displays native Track Title, Artist, and Album in the Virtual Cockpit and HUD during CarPlay playback. Built upon the vehicle-verified v1.1.0 native route guidance foundation.
 
 It routes the secondary CarPlay map video feed (Apple Maps, Google Maps, Waze) to the center of the digital cluster and translates CarPlay navigation events into native Volkswagen instrument cluster graphics (arrows, distances, and route totals on the AID and HUD).
@@ -36,7 +36,7 @@ It routes the secondary CarPlay map video feed (Apple Maps, Google Maps, Waze) t
 
 ## Features
 
-- **Seamless Reroute Holding:** Keeps route guidance continuously active with straight placeholder arrows during mid-journey recalculations, preventing the cluster from dropping to idle and restarting the route loading circle animation.
+- **Seamless Reroute Holding & OEM Recalculating Symbol:** Keeps route guidance continuously active with the factory OEM recalculating symbol (`mainElement = 10`) during mid-journey recalculations, preventing the cluster from dropping to idle and restarting the route loading circle animation.
 - **Smooth Cluster Map Feed:** 30 FPS target with forced IDR keyframes every 5 frames, eliminating map freezes and video lag on the virtual cockpit.
 - **AID 795B Safe Area Fix:** Custom safe area height of 340 px ($y=96$, bottom edge at 436 px) preventing phone cards and UI elements from clipping into the AID's bottom clock, remaining distance, and travel time bar.
 - **Steering Wheel Zoom Neutralized:** Neutralized accidental scroll-wheel map zoom commands that cause cluster video freezes and crashes during normal instrument cluster menu navigation.

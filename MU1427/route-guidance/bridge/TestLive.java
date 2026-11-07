@@ -149,11 +149,18 @@ public final class TestLive {
         check(b.refreshPending==0,"unrelated stock delivery keeps factory retry behavior");
         b=bridge(); b.tick(clock); Function original=b.stages[0]; b.stages[0]=null; clock+=250; b.tick(clock); check(!b.owned,"missing core stage blocks takeover");
         b.stages[0]=original; clock+=250; b.tick(clock); check(!b.owned,"stage reinitialization requires new source progress");
+        // Standard straight placeholder:
         b=bridge();
         b.selected=new LiveModel.Frame(true,0,0,-1,1000,120,1,clock,1);
-        ManeuverDescriptor_Status rerouteDesc=new ManeuverDescriptor_Status();
-        LiveBridge.descriptor(rerouteDesc);
-        check(rerouteDesc.maneuver_1.mainElement==13 && rerouteDesc.maneuver_1.direction==0,"reroute displays straight placeholder arrow");
+        ManeuverDescriptor_Status placeholderDesc=new ManeuverDescriptor_Status();
+        LiveBridge.descriptor(placeholderDesc);
+        check(placeholderDesc.maneuver_1.mainElement==13 && placeholderDesc.maneuver_1.direction==0,"placeholder displays straight arrow");
+        // Factory recalculating symbol (mainElement == 10 during reroute state == 2):
+        b=bridge();
+        b.selected=new LiveModel.Frame(true,10,0,-1,1000,120,1,clock,1);
+        ManeuverDescriptor_Status recalcDesc=new ManeuverDescriptor_Status();
+        LiveBridge.descriptor(recalcDesc);
+        check(recalcDesc.maneuver_1.mainElement==10 && recalcDesc.maneuver_1.direction==0,"reroute displays factory recalculating symbol 10");
         DistanceToNextManeuver_Status rerouteDist=new DistanceToNextManeuver_Status();
         LiveBridge.distance(rerouteDist);
         check(!rerouteDist.validityInformation.distanceToNextManeuverValid,"reroute distance invalid");

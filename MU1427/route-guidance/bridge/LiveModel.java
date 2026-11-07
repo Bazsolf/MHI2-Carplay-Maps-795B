@@ -321,7 +321,7 @@ public final class LiveModel {
     }
     private int maneuverType(){Message m=current();return m!=null && m.has[3]?(int)m.v[3]:-1;}
     public Frame frame() {
-        int[] symbol=map(current());
+        int[] symbol=state==2?symbol(10,0):map(current());
         return new Frame((state==1 || state==6 || state==2) && changed>=0,symbol[0],symbol[1],distance,remainingMeters,remainingSeconds,progress,changed,epoch,laneCache.current(),routeStatusAt,currentRoad,roadAt,maneuverType());
     }
     static int turn(int a) { int n=Math.abs(a); return n<=22?0:n<=67?(a<0?32:224):n<=112?(a<0?64:192):(a<0?96:160); }
