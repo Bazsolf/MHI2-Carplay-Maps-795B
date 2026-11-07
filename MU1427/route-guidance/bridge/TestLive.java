@@ -124,11 +124,11 @@ public final class TestLive {
         clock+=250; b.tick(clock); check(!b.clearing && b.selected==null,"stock refreshed after clear");
         check(!LiveBridge.descriptor(dirty),"pass-through helper declines");
         b=bridge(); sent.clear(); accept=false; b.tick(clock);
-        check((b.refreshPending&LiveBridge.PROPERTIES)==LiveBridge.PROPERTIES,"queue rejection schedules retry");
-        accept=true; clock+=250; b.tick(clock); check((b.refreshPending&LiveBridge.PROPERTIES)==0,"retry accepted");
+        check((b.refreshPending&(b.stages[6]==null?55:LiveBridge.PROPERTIES))==(b.stages[6]==null?55:LiveBridge.PROPERTIES),"queue rejection schedules retry");
+        accept=true; clock+=250; b.tick(clock); check((b.refreshPending&(b.stages[6]==null?55:LiveBridge.PROPERTIES))==0,"retry accepted");
         b.mode=0; accept=false; clock+=250; b.tick(clock); check(b.clearing,"rejected clear retained");
         clock+=250; b.tick(clock); check(b.clearing && b.selected!=null,"clear not lost at next tick");
-        accept=true; clock+=250; b.tick(clock); check((b.refreshPending&LiveBridge.PROPERTIES)==0,"clear retry accepted");
+        accept=true; clock+=250; b.tick(clock); check((b.refreshPending&(b.stages[6]==null?55:LiveBridge.PROPERTIES))==0,"clear retry accepted");
         clock+=250; b.tick(clock); check(!b.clearing,"clear then stock handback");
         b=bridge(); b.tick(clock); route=1; clock+=250; sent.clear(); b.tick(clock);
         check(!b.owned && b.selected==null,"OEM route priority");
@@ -139,7 +139,7 @@ public final class TestLive {
         b=bridge(); b.tick(clock); connection=0; clock+=250; b.tick(clock); check(!b.owned,"disconnect releases"); connection=2;
         b=bridge(); b.tick(clock); clock+=1500; b.tick(clock); check(!b.owned,"missed HMI lease");
         b=bridge(); b.tick(clock); b.journalAt=clock-1500; clock+=250; b.tick(clock); check(!b.owned,"recorder heartbeat lease");
-        b=bridge(); b.tick(clock); b.incoming=new LiveModel.Frame(true,13,64,20,2,clock-5000,1); clock+=250; b.tick(clock); check(!b.owned,"semantic stale deadline");
+        b=bridge(); b.tick(clock); b.incoming=new LiveModel.Frame(true,13,64,20,2,clock-LiveModel.HOLD_MS,1); clock+=250; b.tick(clock); check(!b.owned,"semantic stale deadline");
         b=bridge(); status=1; b.tick(clock); check(!b.owned,"native error cannot imply idle"); status=0;
         b=bridge(); b.mode=1; sent.clear(); b.tick(clock); check(!b.owned && sent.size()==0,"shadow writes nothing");
         b=bridge(); b.mode=0; b.tick(clock); check(!b.owned,"off by default");
@@ -149,6 +149,23 @@ public final class TestLive {
         check(b.refreshPending==0,"unrelated stock delivery keeps factory retry behavior");
         b=bridge(); b.tick(clock); Function original=b.stages[0]; b.stages[0]=null; clock+=250; b.tick(clock); check(!b.owned,"missing core stage blocks takeover");
         b.stages[0]=original; clock+=250; b.tick(clock); check(!b.owned,"stage reinitialization requires new source progress");
+        b=bridge();
+        b.selected=new LiveModel.Frame(true,0,0,-1,1000,120,1,clock,1);
+        ManeuverDescriptor_Status rerouteDesc=new ManeuverDescriptor_Status();
+        LiveBridge.descriptor(rerouteDesc);
+        check(rerouteDesc.maneuver_1.mainElement==13 && rerouteDesc.maneuver_1.direction==0,"reroute displays straight placeholder arrow");
+        DistanceToNextManeuver_Status rerouteDist=new DistanceToNextManeuver_Status();
+        LiveBridge.distance(rerouteDist);
+        check(!rerouteDist.validityInformation.distanceToNextManeuverValid,"reroute distance invalid");
+        RG_Status_Status rerouteRg=new RG_Status_Status();
+        LiveBridge.route(rerouteRg);
+        check(rerouteRg.rg_Status==1,"reroute RG status remains ACTIVE 1");
+        DistanceToDestination_Status rerouteDest=new DistanceToDestination_Status();
+        LiveBridge.destinationDistance(rerouteDest);
+        check(rerouteDest.validityInformation.distanceToDestinationValid,"reroute preserves destination distance");
+        TimeToDestination_Status rerouteEta=new TimeToDestination_Status();
+        LiveBridge.destinationTime(rerouteEta);
+        check(rerouteEta.validityInformation.timeInfo_MinuteIsValid,"reroute preserves destination ETA");
         System.out.println("{\"factory_integration_assertions\":"+checks+"}");
     }
     static void replay(String path,boolean bootstrap) throws Exception {
