@@ -5,7 +5,7 @@
 set -u
 ACTION=${1:-status}
 PAYLOAD=${2:-}
-BUILD_ID=MU1427-native-guidance-1.2.1
+BUILD_ID=MU1427-native-guidance-1.2.1-r1
 JAR_SIZE=55129
 READER_SIZE=16606
 M=""
@@ -92,7 +92,7 @@ if [ "$ACTION" = install ]; then
     [ "$(cat "$PAYLOAD/driver/VERSION" 2>/dev/null)" = MU1427-iAP2-RGI-B4-3760797a ] || fail PAYLOAD_DRIVER_VERSION
     regular "$PAYLOAD/driver-control.sh" || fail PAYLOAD_DRIVER_CONTROLLER
     if [ -f "$ROOT/VERSION" ]; then
-        if [ "$(cat "$ROOT/VERSION" 2>/dev/null)" != "$BUILD_ID" ]; then
+        if [ "$(cat "$ROOT/VERSION" 2>/dev/null)" != "$BUILD_ID" ] || [ "$(size "$JAR")" != "$JAR_SIZE" ]; then
             native mount -uw /mnt/app >/dev/null 2>&1 || fail APP_REMOUNT
             cp "$PAYLOAD/CarPlayRouteGuidanceD1.jar" "$JAR.new" || fail STAGE_JAR
             [ "$(size "$JAR.new")" = "$JAR_SIZE" ] || fail STAGED_SIZE
