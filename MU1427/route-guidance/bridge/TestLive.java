@@ -173,6 +173,18 @@ public final class TestLive {
         TimeToDestination_Status rerouteEta=new TimeToDestination_Status();
         LiveBridge.destinationTime(rerouteEta);
         check(rerouteEta.validityInformation.timeInfo_MinuteIsValid,"reroute preserves destination ETA");
+        LiveModel model=new LiveModel();
+        LiveModel.Message m1=new LiveModel.Message();
+        m1.id=0x5201; m1.components=new int[]{0x10}; m1.has[1]=true; m1.v[1]=1;
+        m1.has[7]=true; m1.v[7]=5000;
+        m1.has[6]=true; m1.v[6]=300;
+        model.apply(m1);
+        LiveModel.Message m5=new LiveModel.Message();
+        m5.id=0x5201; m5.components=new int[]{0x10}; m5.has[1]=true; m5.v[1]=5;
+        model.apply(m5);
+        LiveModel.Frame rf=model.frame();
+        check(rf.main==10 && rf.direction==0,"reroute state 5 yields recalculating symbol 10,0");
+        check(rf.meters==-1 && !rf.validDistance,"reroute state 5 clears maneuver distance");
         System.out.println("{\"factory_integration_assertions\":"+checks+"}");
     }
     static void replay(String path,boolean bootstrap) throws Exception {

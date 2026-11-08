@@ -205,7 +205,7 @@ public final class LiveModel {
         }
         return null;
     }
-    private boolean apply(Message m) {
+    boolean apply(Message m) {
         boolean component=false;
         for (int i=0;i<m.components.length;i++) if (m.components[i]==0x10) component=true;
         if (!component) return false;
@@ -236,7 +236,7 @@ public final class LiveModel {
         int next=m.has[1]?(int)m.v[1]:state;
         boolean sourceChange=m.has[19] && source!=null && !equal(source,m.raw[19]);
         boolean destChange=m.has[4] && destination!=null && destination.length>0 && m.raw[4].length>0 && !equal(destination,m.raw[4]);
-        if (next==0 && state!=0 || next>0 && state<=0 || (next==3 || next==5) && state>0 && state!=next || sourceChange || destChange || next>6) {
+        if (next==0 && state!=0 || next>0 && state<=0 || next==3 && state>0 && state!=next || sourceChange || destChange || next>6) {
             clearCache(); destination=null; if (sourceChange) source=null;
         }
         state=next;
@@ -245,11 +245,11 @@ public final class LiveModel {
             if (m.has[4]) destination=m.raw[4];
             if (m.has[13]) order=m.order;
         }
-        if (next!=1 && next!=6 && next!=2) {remainingMeters=remainingSeconds=-1;currentRoad="";roadAt=-1;directRoad=false;}
+        if (next!=1 && next!=6 && next!=2 && next!=5) {remainingMeters=remainingSeconds=-1;currentRoad="";roadAt=-1;directRoad=false;}
         if(m.has[16])laneCache.selected=(int)m.v[16];
         if(m.has[18])laneCache.showing=m.v[18]==1;
-        if(next!=1 && next!=6 && next!=2){laneCache.showing=false;routeStatusAt=-1;}
-        if (next==2) { cache=new Message[32]; distance=-1;laneCache.clear(); }
+        if(next!=1 && next!=6 && next!=2 && next!=5){laneCache.showing=false;routeStatusAt=-1;}
+        if (next==2 || next==5) { cache=new Message[32]; distance=-1;laneCache.clear(); }
         return true;
     }
     public Frame snapshot(byte[] b, long now, boolean bootstrap) throws IOException {
@@ -303,7 +303,7 @@ public final class LiveModel {
                     Message m=messages[i];
                     if(m.id==0x5201 && m.has[3]){roadFields++;if(RoadName.decode(m.raw[3]).length()>0)roadNonempty++;}
                     if(m.id==0x5204){laneMessages++;for(int j=0;j<m.lanes.length;j++)if(m.lanes[j].recommendation==0){neutralLanes++;neutralBranches+=m.lanes[j].sides.length();}}
-                    if (m.id==0x5201 && (state==1 || state==6 || state==2)) {
+                    if (m.id==0x5201 && (state==1 || state==6 || state==2 || state==5)) {
                         routeStatusAt=now;
                         if(m.has[3]){currentRoad=RoadName.decode(m.raw[3]);roadAt=now;directRoad=currentRoad.length()>0;}
                         else if(passed!=null && !directRoad){currentRoad=passed;roadAt=now;}
@@ -321,8 +321,8 @@ public final class LiveModel {
     }
     private int maneuverType(){Message m=current();return m!=null && m.has[3]?(int)m.v[3]:-1;}
     public Frame frame() {
-        int[] symbol=state==2?symbol(10,0):map(current());
-        return new Frame((state==1 || state==6 || state==2) && changed>=0,symbol[0],symbol[1],distance,remainingMeters,remainingSeconds,progress,changed,epoch,laneCache.current(),routeStatusAt,currentRoad,roadAt,maneuverType());
+        int[] symbol=(state==2 || state==5)?symbol(10,0):map(current());
+        return new Frame((state==1 || state==6 || state==2 || state==5) && changed>=0,symbol[0],symbol[1],distance,remainingMeters,remainingSeconds,progress,changed,epoch,laneCache.current(),routeStatusAt,currentRoad,roadAt,maneuverType());
     }
     static int turn(int a) { int n=Math.abs(a); return n<=22?0:n<=67?(a<0?32:224):n<=112?(a<0?64:192):(a<0?96:160); }
     static int[] symbol(int main,int direction) { return new int[]{main,direction}; }
