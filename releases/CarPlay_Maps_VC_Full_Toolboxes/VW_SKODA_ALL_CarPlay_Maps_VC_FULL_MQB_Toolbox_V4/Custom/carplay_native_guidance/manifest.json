@@ -1,8 +1,8 @@
 {
   "version": "1.2.1-experimental",
-  "build_id": "MU1427-native-guidance-1.2.1-r1",
+  "build_id": "MU1427-native-guidance-1.2.1-r2",
   "source_id": "7aa249357413c8a7",
-  "jar_sha256": "b91f1548535c7f3a11ce4d4f537e08b6cc1d3cab0d576623406713686b472085",
+  "jar_sha256": "976b46055e15830a6f9deb75b4f8525e4b16a2e35eaff81dd304493aacb6f6dd",
   "reader_sha256": "b683cef78828bfab2b8cdf43e4ea82e5d7c16d0d47730936d936e82af6ee08ac",
   "controller_sha256": "70fae30ced80316be117bc6bba0985e359a886f1fb495d5f063291f95a888097",
   "default_enabled_after_boot": true,
@@ -35,8 +35,8 @@
     "all_class_major": 46,
     "factory_cdc_compile": true,
     "source_id": "7aa249357413c8a7",
-    "jar_sha256": "b91f1548535c7f3a11ce4d4f537e08b6cc1d3cab0d576623406713686b472085",
-    "jar_size": 55129,
+    "jar_sha256": "976b46055e15830a6f9deb75b4f8525e4b16a2e35eaff81dd304493aacb6f6dd",
+    "jar_size": 55123,
     "factory_jxe_sha256": "f46290b4a33b98d957170f6207073ad329316902a87cd4c27da4168548ad911a",
     "converted_jar_sha256": "8c24e09ed0b3aa793cb202745b764885009bdca408db2e40adb2dfefc4db653a",
     "converted_content_sha256": "7c63a1130d42999f18d1f30195292ba547aa14a767df7edab5d09f1ae6feffdf",
@@ -81,7 +81,7 @@
         "observations_matched": 504
       }
     ],
-    "jar_sha256": "51896241ff916bcd1546b8630081b3c5303635fe4f6f47a816a81a08ce937822",
+    "jar_sha256": "976b46055e15830a6f9deb75b4f8525e4b16a2e35eaff81dd304493aacb6f6dd",
     "source_id": "7aa249357413c8a7",
     "passed": true,
     "test_sha256": "be11f42f4cc2fb88dc9987623d274a4ffa3c70094e1e00ad4ef05749f5b518a8",
@@ -166,7 +166,7 @@
     "mailbox_qnx_passed": true,
     "reader_sha256": "b683cef78828bfab2b8cdf43e4ea82e5d7c16d0d47730936d936e82af6ee08ac",
     "passed": true,
-    "jar_sha256": "51896241ff916bcd1546b8630081b3c5303635fe4f6f47a816a81a08ce937822",
+    "jar_sha256": "976b46055e15830a6f9deb75b4f8525e4b16a2e35eaff81dd304493aacb6f6dd",
     "negative_control_sha256": "b8f0d3599f43419c8cbf3cf748cba4ce16ac4038263d082802359e8fdf47b774",
     "all_class_major": 46,
     "qnx_actual_firmware_j9": true,
@@ -203,7 +203,7 @@
     "tests": 11,
     "controller_sha256": "c248d68cba5e40944488b6805820da68a71356f84334b216dbd81723596a1938",
     "test_sha256": "3ad9248c3a307e577de6793a4c39d4ed320ba08c6b5a4a5b73d020a1aa3e3adb",
-    "jar_sha256": "51896241ff916bcd1546b8630081b3c5303635fe4f6f47a816a81a08ce937822",
+    "jar_sha256": "976b46055e15830a6f9deb75b4f8525e4b16a2e35eaff81dd304493aacb6f6dd",
     "reader_sha256": "b683cef78828bfab2b8cdf43e4ea82e5d7c16d0d47730936d936e82af6ee08ac"
   },
   "reader_tests": {
@@ -211,7 +211,7 @@
     "tests": 6,
     "reader_source_sha256": "fa4b4ed62ab1969a9b32cdbeb78cdb01292b8c68d5f3ea7008b1a54d8cf2bc8d",
     "mailbox_source_sha256": "fb6e28aa0f420be94550e68b30411a4d18d67dd64db6911f1f859c0eea43baf3",
-    "jar_sha256": "51896241ff916bcd1546b8630081b3c5303635fe4f6f47a816a81a08ce937822",
+    "jar_sha256": "976b46055e15830a6f9deb75b4f8525e4b16a2e35eaff81dd304493aacb6f6dd",
     "test_sha256": "eda235304214f79dcba283d51a2abfa91693fdf78262d824afed53c069539783"
   },
   "unit_automatic_startup_and_lowered_card_check_pending": true

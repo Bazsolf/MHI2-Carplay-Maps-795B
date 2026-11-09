@@ -155,12 +155,12 @@ public final class TestLive {
         ManeuverDescriptor_Status placeholderDesc=new ManeuverDescriptor_Status();
         LiveBridge.descriptor(placeholderDesc);
         check(placeholderDesc.maneuver_1.mainElement==13 && placeholderDesc.maneuver_1.direction==0,"placeholder displays straight arrow");
-        // Factory recalculating symbol (mainElement == 10 during reroute state == 2):
+        // Clean straight placeholder arrow (mainElement == 13 during reroute):
         b=bridge();
-        b.selected=new LiveModel.Frame(true,10,0,-1,1000,120,1,clock,1);
+        b.selected=new LiveModel.Frame(true,0,0,-1,1000,120,1,clock,1);
         ManeuverDescriptor_Status recalcDesc=new ManeuverDescriptor_Status();
         LiveBridge.descriptor(recalcDesc);
-        check(recalcDesc.maneuver_1.mainElement==10 && recalcDesc.maneuver_1.direction==0,"reroute displays factory recalculating symbol 10");
+        check(recalcDesc.maneuver_1.mainElement==13 && recalcDesc.maneuver_1.direction==0,"reroute displays clean straight placeholder arrow 13");
         DistanceToNextManeuver_Status rerouteDist=new DistanceToNextManeuver_Status();
         LiveBridge.distance(rerouteDist);
         check(!rerouteDist.validityInformation.distanceToNextManeuverValid,"reroute distance invalid");
@@ -183,7 +183,7 @@ public final class TestLive {
         m5.id=0x5201; m5.components=new int[]{0x10}; m5.has[1]=true; m5.v[1]=5;
         model.apply(m5);
         LiveModel.Frame rf=model.frame();
-        check(rf.main==10 && rf.direction==0,"reroute state 5 yields recalculating symbol 10,0");
+        check(rf.main==0 && rf.direction==0,"reroute state 5 yields placeholder symbol 0,0");
         check(rf.meters==-1 && !rf.validDistance,"reroute state 5 clears maneuver distance");
         System.out.println("{\"factory_integration_assertions\":"+checks+"}");
     }
