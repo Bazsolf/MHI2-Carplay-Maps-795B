@@ -95,9 +95,19 @@ if [ "$ACTION" = install ]; then
         if [ "$(cat "$ROOT/VERSION" 2>/dev/null)" != "$BUILD_ID" ] || [ "$(size "$JAR")" != "$JAR_SIZE" ]; then
             native mount -uw /mnt/app >/dev/null 2>&1 || fail APP_REMOUNT
             cp "$PAYLOAD/CarPlayRouteGuidanceD1.jar" "$JAR.new" || fail STAGE_JAR
+    if [ -s "$PAYLOAD/CarPlayClusterControls.jar" ] && [ -d "$APP/eso/hmi/lsd/jars" ]; then
+        cp "$PAYLOAD/CarPlayClusterControls.jar" "$APP/eso/hmi/lsd/jars/CarPlayClusterControls.jar.new" 2>/dev/null && \
+        chmod 644 "$APP/eso/hmi/lsd/jars/CarPlayClusterControls.jar.new" 2>/dev/null && \
+        mv "$APP/eso/hmi/lsd/jars/CarPlayClusterControls.jar.new" "$APP/eso/hmi/lsd/jars/CarPlayClusterControls.jar" 2>/dev/null || true
+    fi
             [ "$(size "$JAR.new")" = "$JAR_SIZE" ] || fail STAGED_SIZE
             chmod 644 "$JAR.new" || fail JAR_MODE
             mv "$JAR.new" "$JAR" || fail JAR_REPLACE
+            if [ -s "$PAYLOAD/CarPlayClusterControls.jar" ] && [ -d "$APP/eso/hmi/lsd/jars" ]; then
+                cp "$PAYLOAD/CarPlayClusterControls.jar" "$APP/eso/hmi/lsd/jars/CarPlayClusterControls.jar.new" 2>/dev/null && \
+                chmod 644 "$APP/eso/hmi/lsd/jars/CarPlayClusterControls.jar.new" 2>/dev/null && \
+                mv "$APP/eso/hmi/lsd/jars/CarPlayClusterControls.jar.new" "$APP/eso/hmi/lsd/jars/CarPlayClusterControls.jar" 2>/dev/null || true
+            fi
             echo "$BUILD_ID" > "$ROOT/VERSION" || fail STAGE_MARKER
             cp "$PAYLOAD/rgi-observer" "$ROOT/reader.new" || fail STAGE_READER
             [ "$(size "$ROOT/reader.new")" = "$READER_SIZE" ] || fail STAGED_SIZE
@@ -143,6 +153,11 @@ if [ "$ACTION" = install ]; then
     ' "$LSD" > "$ROOT/lsd.new" || fail STAGE_SCRIPT
     /bin/ksh -n "$ROOT/lsd.new" || fail STAGED_SYNTAX
     cp "$PAYLOAD/CarPlayRouteGuidanceD1.jar" "$JAR.new" || fail STAGE_JAR
+    if [ -s "$PAYLOAD/CarPlayClusterControls.jar" ] && [ -d "$APP/eso/hmi/lsd/jars" ]; then
+        cp "$PAYLOAD/CarPlayClusterControls.jar" "$APP/eso/hmi/lsd/jars/CarPlayClusterControls.jar.new" 2>/dev/null && \
+        chmod 644 "$APP/eso/hmi/lsd/jars/CarPlayClusterControls.jar.new" 2>/dev/null && \
+        mv "$APP/eso/hmi/lsd/jars/CarPlayClusterControls.jar.new" "$APP/eso/hmi/lsd/jars/CarPlayClusterControls.jar" 2>/dev/null || true
+    fi
     cp "$PAYLOAD/rgi-observer" "$ROOT/reader.new" || fail STAGE_READER
     [ "$(size "$JAR.new")" = "$JAR_SIZE" ] && [ "$(size "$ROOT/reader.new")" = "$READER_SIZE" ] || fail STAGED_SIZE
     chmod 644 "$JAR.new" || fail JAR_MODE
@@ -156,6 +171,11 @@ if [ "$ACTION" = install ]; then
     fi
     mv "$ROOT/reader.new" "$ROOT/rgi-observer" || fail READER_REPLACE
     mv "$JAR.new" "$JAR" || fail JAR_REPLACE
+            if [ -s "$PAYLOAD/CarPlayClusterControls.jar" ] && [ -d "$APP/eso/hmi/lsd/jars" ]; then
+                cp "$PAYLOAD/CarPlayClusterControls.jar" "$APP/eso/hmi/lsd/jars/CarPlayClusterControls.jar.new" 2>/dev/null && \
+                chmod 644 "$APP/eso/hmi/lsd/jars/CarPlayClusterControls.jar.new" 2>/dev/null && \
+                mv "$APP/eso/hmi/lsd/jars/CarPlayClusterControls.jar.new" "$APP/eso/hmi/lsd/jars/CarPlayClusterControls.jar" 2>/dev/null || true
+            fi
     JAR_CREATED=yes
     mv "$LSD.rgi-new" "$LSD" || fail BOOT_REPLACE_OLD_SCRIPT_RETAINED
     BOOT_COMMITTED=yes
