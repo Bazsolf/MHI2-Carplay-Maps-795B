@@ -1,6 +1,6 @@
 {
-  "version": "1.2.1-experimental",
-  "build_id": "MU1427-native-guidance-1.2.1-r2",
+  "version": "1.2.1",
+  "build_id": "MU1427-native-guidance-1.2.1-stable",
   "source_id": "7aa249357413c8a7",
   "jar_sha256": "976b46055e15830a6f9deb75b4f8525e4b16a2e35eaff81dd304493aacb6f6dd",
   "reader_sha256": "b683cef78828bfab2b8cdf43e4ea82e5d7c16d0d47730936d936e82af6ee08ac",
