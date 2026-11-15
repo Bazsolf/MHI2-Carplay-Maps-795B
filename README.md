@@ -8,7 +8,7 @@
 [![Platform](https://img.shields.io/badge/platform-MHI2%20%2F%20QNX%206.5-2f6f9f?style=flat-square)](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B)
 [![Firmware](https://img.shields.io/badge/firmware-MU1427%20(K3342)-green?style=flat-square)](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B)
 [![Cluster](https://img.shields.io/badge/cluster-791%20%2F%20795B%20AID%2012.3-green?style=flat-square)](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B)
-[![Release](https://img.shields.io/badge/release-v1.3.0--experimental-orange?style=flat-square)](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B/releases/tag/v1.3.0-experimental)
+[![Release](https://img.shields.io/badge/release-v1.4.0--experimental-orange?style=flat-square)](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B/releases/tag/v1.4.0-experimental)
 
 [Features](#features) • [Installation](#installation) • [Display & Tuning](#display--tuning-options) • [Recovery](#uninstallation--recovery) • [Credits](#credits--acknowledgments)
 
@@ -26,11 +26,12 @@
 This repository provides an optimized distribution of **CarPlay Maps VC**, **Native Route Guidance**, and **Now Playing Audio Metadata** for Volkswagen MIB2 High / MIB2.5 infotainment systems running **MU1427** (`MHI2_ER_VWG11_K3342`), specifically tuned for the **12.3" Active Info Display (AID 791 / 795B)** virtual cockpit.
 
 > [!NOTE]
-> **v1.3.0-experimental:**
-> - **Smart Context-Aware Steering Wheel Controls & Menu Suppression:** Designed specifically for Volkswagen steering wheels with physical `▲` (Up) and `▼` (Down) buttons (KeyPanel 4). When actively viewing CarPlay Maps on the Active Info Display (AID) Navigation tab, pressing Up/Down zooms in/out smoothly without popping up the cluster's "Recent addresses" menu (the DSI key event is cleanly consumed). Long press (> 2.5s) toggles alternative map views. In all other cluster tabs (Driving Data, Audio / Now Playing, Telephone, Vehicle Status), the buttons pass through to OEM cluster menus as standard.
-> - **Seamless Reroute Holding & Clean Placeholder Arrow:** Eliminates the route-initialization loading circle animation when Google Maps or Apple Maps recalculates/reroutes mid-journey. While calculating the new route, route guidance remains active with a clean straight placeholder arrow, preserving remaining distance and ETA without interruption.
-> - **Now Playing Audio Text:** Displays native Track Title, Artist, and Album in the Virtual Cockpit and HUD during CarPlay playback (Spotify, Apple Music, YouTube Music).
-> *(Note: The latest verified stable release is [`v1.2.1`](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B/releases/tag/v1.2.1)).*
+> **v1.4.0-experimental:**
+> - **MOST Video Bridge (from Tomasz's `v1.5.2` build):** Updated `altscreen-most-bridge` to Tomasz's `MU1367-v1.5.2` build (~18s post-boot MOST reclaim + 2048-packet backlog) for improved cluster video startup and streaming reliability.
+> - **40 FPS / IDR 5 & Safe Area Tuning:** Rebuilt `core.so` for `MU1427` / `791` with **40 fps** max frame rate, **IDR 5** keyframe interval, and `160,20,480,440` safe area.
+> - **Apple Maps Localized-Name Fix:** Updated `CarPlayRouteGuidanceD1.jar` (`AppleSourceHelper`) for `LiveModel` source matching across localized Apple Maps app names.
+> - **Clean Text-Only Now Playing & Reorganized GEM Menu:** Clean text-only Now Playing (`CarPlayNowPlayingTextN1.jar`), reorganized GEM submenus (**Native Guidance Options**, **Now Playing Options**, **Display Tuning Options**), removed unused `790 AID` entry, and stripped CRLF line endings.
+> *(Note: Includes `v1.3.0-experimental` steering wheel controls, reroute holding, and Now Playing text. The latest verified stable release is [`v1.2.1`](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B/releases/tag/v1.2.1)).*
 
 It routes the secondary CarPlay map video feed (Apple Maps, Google Maps, Waze) to the center of the digital cluster and translates CarPlay navigation events into native Volkswagen instrument cluster graphics (arrows, distances, and route totals on the AID and HUD).
 
@@ -79,7 +80,7 @@ It routes the secondary CarPlay map video feed (Apple Maps, Google Maps, Waze) t
 ## Installation
 
 ### 1. Preparation
-1. Download the latest release: [`CarPlay_Maps_VC_MU1427_795B_AID_v1.3.0-experimental.zip`](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B/releases/tag/v1.3.0-experimental) *(or the stable [`v1.2.1 release`](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B/releases/tag/v1.2.1))*.
+1. Download the latest release: [`CarPlay_Maps_VC_MU1427_795B_AID_v1.4.0-experimental.zip`](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B/releases/tag/v1.4.0-experimental) *(or the stable [`v1.2.1 release`](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B/releases/tag/v1.2.1))*.
 2. Format an SD card (32 GB or smaller) to **FAT32**.
 3. Extract the contents of the ZIP directly to the root of the SD card.
 
@@ -97,8 +98,8 @@ It routes the secondary CarPlay map video feed (Apple Maps, Google Maps, Waze) t
    - Re-open GEM and navigate to:
      $$\text{MQB Toolbox} \rightarrow \text{Customization} \rightarrow \text{CarPlay Maps VC}$$
 4. **Base Profile:** Select **`Install 791/795B AID 12.3 (AUTO MU)`**.
-5. **Native Guidance:** Select **`Install full native guidance (MU1427 only)`**.
-6. **Now Playing Text (Optional):** Select **`Install Now Playing text (MU1427 only)`** (also available under the dedicated `CarPlay Now Playing Audio` submenu) to show live track title, artist, and album in the cluster dials and HUD.
+5. **Native Guidance:** Open **`Native Guidance Options`** → **`Install full native guidance (MU1427 only)`**.
+6. **Now Playing Text (Optional):** Open **`Now Playing Options`** → **`Install Now Playing text (MU1427 only)`** to show live track title, artist, and album in the cluster dials and HUD.
 7. **Fully reboot the unit:** Press and hold the volume/power knob for **10–15 seconds** until the screen restarts.
 
 ### 3. Verification
@@ -113,7 +114,7 @@ It routes the secondary CarPlay map video feed (Apple Maps, Google Maps, Waze) t
 Out of the box, `Install 791/795B AID 12.3 (AUTO MU)` defaults to **Map-Only (No Card)** for an unobstructed 100% full-screen map, since native guidance already injects all turn arrows, distances, and street names natively into the dials and HUD.
 
 If you prefer having the CarPlay maneuver turn-box floating on the map screen, you can switch tuning options anytime without reinstalling. In GEM, navigate to:
-$$\text{MQB Toolbox} \rightarrow \text{Customization} \rightarrow \text{CarPlay Maps VC} \rightarrow \text{Tuning}$$
+$$\text{MQB Toolbox} \rightarrow \text{Customization} \rightarrow \text{CarPlay Maps VC} \rightarrow \text{Display Tuning Options}$$
 
 | Tuning Option | Description |
 | :--- | :--- |
