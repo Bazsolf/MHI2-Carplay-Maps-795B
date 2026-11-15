@@ -27,16 +27,17 @@ keyValue
 
 keyValue
     value   String sys 0x00000000 0
+    label   "795B / custom fork: Bazsolf"
+    poll    0
+
+keyValue
+    value   String sys 0x00000000 0
     label   "MU1427: native arrows, distance and route totals"
     poll    0
 
 script
     value   sys 1 0x0100 "/eso/hmi/engdefs/scripts/mqb/cpmap_install_791.sh"
     label   "Install 791 AID 12.3 (AUTO MU)"
-
-script
-    value   sys 1 0x0100 "/eso/hmi/engdefs/scripts/mqb/cpmap_install_790.sh"
-    label   "Install 790 AID 10.5 (AUTO MU)"
 
 script
     value   sys 1 0x0100 "/eso/hmi/engdefs/scripts/mqb/cpmap_status.sh"
@@ -49,31 +50,3 @@ script
 script
     value   sys 1 0x0100 "/eso/hmi/engdefs/scripts/mqb/cpmap_restore.sh"
     label   "Restore factory files"
-
-script
-    value   sys 1 0x0100 "/eso/hmi/engdefs/scripts/mqb/cpmap_guidance_install.sh"
-    label   "Install full native guidance (MU1427 only)"
-
-script
-    value   sys 1 0x0100 "/eso/hmi/engdefs/scripts/mqb/cpmap_guidance_status.sh"
-    label   "Show native guidance status"
-
-script
-    value   sys 1 0x0100 "/eso/hmi/engdefs/scripts/mqb/cpmap_guidance_disable.sh"
-    label   "Disable native guidance now (until reboot)"
-
-script
-    value   sys 1 0x0100 "/eso/hmi/engdefs/scripts/mqb/cpmap_guidance_remove.sh"
-    label   "Remove native guidance (reboot)"
-
-script
-    value   sys 1 0x0100 "/eso/hmi/engdefs/scripts/mqb/cpmap_audio_install.sh"
-    label   "Install Now Playing text (MU1427 only)"
-
-script
-    value   sys 1 0x0100 "/eso/hmi/engdefs/scripts/mqb/cpmap_audio_status.sh"
-    label   "Show Now Playing text status"
-
-script
-    value   sys 1 0x0100 "/eso/hmi/engdefs/scripts/mqb/cpmap_audio_remove.sh"
-    label   "Remove Now Playing text (reboot)"

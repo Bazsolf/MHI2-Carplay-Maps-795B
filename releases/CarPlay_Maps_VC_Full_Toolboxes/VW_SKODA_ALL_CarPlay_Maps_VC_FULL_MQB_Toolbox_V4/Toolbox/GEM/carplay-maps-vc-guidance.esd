@@ -1,0 +1,26 @@
+###########################################################################
+# CarPlay Maps VC - Native Route Guidance (MU1427 only)
+# Native maneuver arrows, distance, lanes, road names & route totals.
+###########################################################################
+screen Native_Guidance_Options carplay-maps-vc
+
+keyValue
+    value   String sys 0x00000000 0
+    label   "CarPlay Native Guidance (MU1427 only)"
+    poll    0
+
+script
+    value   sys 1 0x0100 "/eso/hmi/engdefs/scripts/mqb/cpmap_guidance_install.sh"
+    label   "Install full native guidance (MU1427 only)"
+
+script
+    value   sys 1 0x0100 "/eso/hmi/engdefs/scripts/mqb/cpmap_guidance_status.sh"
+    label   "Show native guidance status"
+
+script
+    value   sys 1 0x0100 "/eso/hmi/engdefs/scripts/mqb/cpmap_guidance_disable.sh"
+    label   "Disable native guidance now (until reboot)"
+
+script
+    value   sys 1 0x0100 "/eso/hmi/engdefs/scripts/mqb/cpmap_guidance_remove.sh"
+    label   "Remove native guidance (reboot)"

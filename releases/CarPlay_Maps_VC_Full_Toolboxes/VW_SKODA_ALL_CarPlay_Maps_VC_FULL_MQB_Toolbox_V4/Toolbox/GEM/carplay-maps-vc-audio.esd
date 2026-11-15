@@ -2,7 +2,7 @@
 # CarPlay Maps VC - Now Playing Audio (MU1427 only)
 # Displays Title, Artist and Album in the Virtual Cockpit and HUD.
 ###########################################################################
-screen carplay-maps-vc-audio carplay-maps-vc
+screen Now_Playing_Options carplay-maps-vc
 
 keyValue
     value   String sys 0x00000000 0

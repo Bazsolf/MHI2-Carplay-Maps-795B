@@ -3,7 +3,7 @@
 # Each entry swaps core.so; a full unit reboot is required afterwards.
 # All options: 30 fps, forced keyframe every 20 frames.
 ###########################################################################
-screen carplay-maps-vc-tuning carplay-maps-vc
+screen Display_Tuning_Options carplay-maps-vc
 
 keyValue
     value   String sys 0x00000000 0
