@@ -205,6 +205,10 @@ cp "$PAIR_CORE" "$NEW/security_bridge/libCarPlayPairingCore.so" || fail "PAIR_CO
 echo "$VERSION" > "$NEW/VERSION"
 echo "$DETECTED_MU/$INSTRUMENT" > "$NEW/PROFILE"
 touch "$NEW/CLUSTER_AUTO_ENABLE"
+if [ -s "$ROOT/intro-policy" ]; then
+    cp "$ROOT/intro-policy" "$NEW/intro-policy" || fail "INTRO_POLICY_COPY_FAILED"
+    chmod 644 "$NEW/intro-policy"
+fi
 
 chmod 755 "$NEW/dio_manager.wrapper.sh" "$NEW/altscreen-most-bridge" "$NEW/carplay-cluster-supervisor" "$NEW/security_bridge/carplay-pairing-helper" "$NEW/stock_first/dio_manager.real"
 chmod 644 "$NEW/core.so" "$NEW/libcarplay-security-bridge.so" "$NEW/security_bridge/libCarPlayPairingCore.so" "$NEW/VERSION" "$NEW/PROFILE" "$NEW/CLUSTER_AUTO_ENABLE"

@@ -1,0 +1,26 @@
+###########################################################################
+# CarPlay Maps VC - AID startup animation options (bridge v1.5.3+)
+# Controls the 4.2s App-Connect intro clip before live CarPlay map video.
+###########################################################################
+screen Startup_Animation_Options carplay-maps-vc
+
+keyValue
+    value   String sys 0x00000000 0
+    label   "AID Startup Animation (App-Connect 4.2s clip)"
+    poll    0
+
+script
+    value   sys 1 0x0100 "/eso/hmi/engdefs/scripts/mqb/cpmap_intro_once.sh"
+    label   "Startup animation: Once per boot (default)"
+
+script
+    value   sys 1 0x0100 "/eso/hmi/engdefs/scripts/mqb/cpmap_intro_every.sh"
+    label   "Startup animation: Every connection"
+
+script
+    value   sys 1 0x0100 "/eso/hmi/engdefs/scripts/mqb/cpmap_intro_off.sh"
+    label   "Startup animation: Off"
+
+script
+    value   sys 1 0x0100 "/eso/hmi/engdefs/scripts/mqb/cpmap_intro_status.sh"
+    label   "Show current startup animation setting"
