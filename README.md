@@ -8,7 +8,7 @@
 [![Platform](https://img.shields.io/badge/platform-MHI2%20%2F%20QNX%206.5-2f6f9f?style=flat-square)](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B)
 [![Firmware](https://img.shields.io/badge/firmware-MU1427%20(K3342)-green?style=flat-square)](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B)
 [![Cluster](https://img.shields.io/badge/cluster-791%20%2F%20795B%20AID%2012.3-green?style=flat-square)](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B)
-[![Release](https://img.shields.io/badge/release-v1.4.0--experimental-orange?style=flat-square)](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B/releases/tag/v1.4.0-experimental)
+[![Release](https://img.shields.io/badge/release-v1.4.0-green?style=flat-square)](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B/releases/tag/v1.4.0)
 
 [Features](#features) • [Installation](#installation) • [Display & Tuning](#display--tuning-options) • [Recovery](#uninstallation--recovery) • [Credits](#credits--acknowledgments)
 
@@ -26,12 +26,12 @@
 This repository provides an optimized distribution of **CarPlay Maps VC**, **Native Route Guidance**, and **Now Playing Audio Metadata** for Volkswagen MIB2 High / MIB2.5 infotainment systems running **MU1427** (`MHI2_ER_VWG11_K3342`), specifically tuned for the **12.3" Active Info Display (AID 791 / 795B)** virtual cockpit.
 
 > [!NOTE]
-> **v1.4.0-experimental:**
-> - **MOST Video Bridge (from Tomasz's `v1.5.2` build):** Updated `altscreen-most-bridge` to Tomasz's `MU1367-v1.5.2` build (~18s post-boot MOST reclaim + 2048-packet backlog) for improved cluster video startup and streaming reliability.
+> **v1.4.0 (Latest Stable Release):**
+> - **MOST Video Bridge (from Tomasz's `v1.5.2` build):** Updated `altscreen-most-bridge` to Tomasz's `MU1367-v1.5.2` build (~18s post-boot MOST reclaim + 2048-packet backlog) for smooth, stutter-free cluster video streaming.
 > - **40 FPS / IDR 5 & Safe Area Tuning:** Rebuilt `core.so` for `MU1427` / `791` with **40 fps** max frame rate, **IDR 5** keyframe interval, and `160,20,480,440` safe area.
 > - **Apple Maps Localized-Name Fix:** Updated `CarPlayRouteGuidanceD1.jar` (`AppleSourceHelper`) for `LiveModel` source matching across localized Apple Maps app names.
-> - **Clean Text-Only Now Playing & Reorganized GEM Menu:** Clean text-only Now Playing (`CarPlayNowPlayingTextN1.jar`), reorganized GEM submenus (**Native Guidance Options**, **Now Playing Options**, **Display Tuning Options**), removed unused `790 AID` entry, and stripped CRLF line endings.
-> *(Note: Includes `v1.3.0-experimental` steering wheel controls, reroute holding, and Now Playing text. The latest verified stable release is [`v1.2.1`](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B/releases/tag/v1.2.1)).*
+> - **Smart Steering Wheel Controls & Reroute Holding:** Includes context-aware `▲`/`▼` zoom with cluster menu suppression, seamless reroute holding with clean placeholder arrow, and clean text-only Now Playing (`CarPlayNowPlayingTextN1.jar`).
+> - **Reorganized GEM Menu & CRLF Fix:** Grouped **Native Guidance Options**, **Now Playing Options**, and **Display Tuning Options** into submenus, removed unused `790 AID` entry, and stripped CRLF line endings.
 
 It routes the secondary CarPlay map video feed (Apple Maps, Google Maps, Waze) to the center of the digital cluster and translates CarPlay navigation events into native Volkswagen instrument cluster graphics (arrows, distances, and route totals on the AID and HUD).
 
@@ -80,7 +80,7 @@ It routes the secondary CarPlay map video feed (Apple Maps, Google Maps, Waze) t
 ## Installation
 
 ### 1. Preparation
-1. Download the latest release: [`CarPlay_Maps_VC_MU1427_795B_AID_v1.4.0-experimental.zip`](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B/releases/tag/v1.4.0-experimental) *(or the stable [`v1.2.1 release`](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B/releases/tag/v1.2.1))*.
+1. Download the latest release: [`CarPlay_Maps_VC_MU1427_795B_AID_v1.4.0.zip`](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B/releases/tag/v1.4.0).
 2. Format an SD card (32 GB or smaller) to **FAT32**.
 3. Extract the contents of the ZIP directly to the root of the SD card.
 
