@@ -50,8 +50,10 @@ It routes the secondary CarPlay map video feed (Apple Maps, Google Maps, Waze) t
 
 - **Smart Context-Aware Steering Wheel Controls:** Physical Up/Down steering wheel buttons zoom CarPlay map when actively on the Navigation tab while completely suppressing the "Recent addresses" cluster popup. Seamlessly passes through to OEM menus when navigating other tabs.
 - **Seamless Reroute Holding & Clean Placeholder Arrow:** Keeps route guidance continuously active during mid-journey recalculations with a clean straight arrow, preventing the cluster from dropping to idle and restarting the route loading circle animation.
-- **Smooth Cluster Map Feed:** 30 FPS target with forced IDR keyframes every 5 frames, eliminating map freezes and video lag on the virtual cockpit.
-- **AID 795B Safe Area Fix:** Custom safe area height of 340 px ($y=96$, bottom edge at 436 px) preventing phone cards and UI elements from clipping into the AID's bottom clock, remaining distance, and travel time bar.
+- **Smooth Cluster Map Feed (40 FPS / IDR 5):** 40 FPS target with forced IDR keyframes every 5 frames, paired with Tomasz's `v1.5.3` `altscreen-most-bridge` running at **priority 14**, **2048-packet backlog**, and boot-time MOST reclaim — eliminating map freezes, reverse-camera stalls, and post-boot dropouts.
+- **AID Startup Animation:** Plays a 4.2 s App-Connect intro clip when CarPlay takes the cluster map before transitioning cleanly to the live map on a fresh keyframe, configurable in GEM under **`Startup_Animation_Options`** (`Once per boot`, `Every connection`, or `Off`).
+- **AID 795B Safe Area Fix:** Uses the taller `160,20,480,440` safe area ($y=20$, height 440 px, bottom edge at 460 px) for the full-screen map feed, preventing UI elements from clipping into the AID status bars.
+- **Apple Maps Localized-Name Fix:** `AppleSourceHelper` matches Apple Maps across localized system/app names so turn arrows, distances, and street names work properly alongside Google Maps.
 - **MOST Bus Recovery:** Intelligent frame queue flushing on the fiber-optic bus to quickly recover from bus congestion during rapid UI or cluster view switching.
 - **Silenced `/ramdisk` Logging:** Prevents rapid exhaustion of the volatile head-unit memory and random reboots during longer journeys.
 - **Native Turn-by-Turn Arrows:** Injects maneuver turn arrows and distances directly into the speedometer dials and Head-Up Display (HUD) via native BAP protocols.
@@ -96,9 +98,8 @@ It routes the secondary CarPlay map video feed (Apple Maps, Google Maps, Waze) t
 ### 2. Vehicle Installation
 
 > [!IMPORTANT]
-> **Installation Order (Required for Fresh Installs):**
-> Step 4 (`Install 791/795B AID 12.3 (AUTO MU)`) **must** be installed before Step 5 (`Install full native guidance`). The base video installer sets up the core runtime and unit profile (`MU1427/791`) that the native guidance script requires. Attempting to install native guidance first on an unpatched unit will halt with `CPMAP_GUIDANCE_FAIL=INSTALL_791_AUTO_MU_FIRST`.
-> *(Existing users already running CarPlay Maps VC can skip Step 4 and proceed directly to Step 5).*
+> **Installation Order (Required for Fresh Installs & Upgrades):**
+> Step 4 (`Install 791 AID 12.3 (AUTO MU)`) **must** be installed before Step 5 (`Install full native guidance`). The base video installer sets up the core runtime, `core.so`, `altscreen-most-bridge` (v1.5.3), and unit profile (`MU1427/791`) that the native guidance script requires. Attempting to install native guidance first on an unpatched unit will halt with `CPMAP_GUIDANCE_FAIL=INSTALL_791_AUTO_MU_FIRST`.
 
 1. Insert the SD card into slot 1 of your head unit.
 2. Ensure your phone is **disconnected** from USB.
@@ -106,10 +107,11 @@ It routes the secondary CarPlay map video feed (Apple Maps, Google Maps, Waze) t
    - On the main MQB Toolbox screen, tap **`Update Toolbox`** to copy the latest scripts into the head unit.
    - Re-open GEM and navigate to:
      $$\text{MQB Toolbox} \rightarrow \text{Customization} \rightarrow \text{CarPlay Maps VC}$$
-4. **Base Profile:** Select **`Install 791/795B AID 12.3 (AUTO MU)`**.
-5. **Native Guidance:** Open **`Native Guidance Options`** → **`Install full native guidance (MU1427 only)`**.
-6. **Now Playing Text (Optional):** Open **`Now Playing Options`** → **`Install Now Playing text (MU1427 only)`** to show live track title, artist, and album in the cluster dials and HUD.
-7. **Fully reboot the unit:** Press and hold the volume/power knob for **10–15 seconds** until the screen restarts.
+4. **Base Profile:** Select **`Install 791 AID 12.3 (AUTO MU)`**.
+5. **Native Guidance:** Open **`Native_Guidance_Options`** → **`Install full native guidance (MU1427 only)`**.
+6. **Startup Animation (Optional):** Open **`Startup_Animation_Options`** to choose **`Once per boot (default)`**, **`Every connection`**, or **`Off`**.
+7. **Now Playing Text (Optional):** Open **`Now_Playing_Options`** → **`Install Now Playing text (MU1427, reboot)`** to show live track title, artist, and album in the cluster dials and HUD.
+8. **Fully reboot the unit:** Press and hold the volume/power knob for **10–15 seconds** until the screen restarts.
 
 ### 3. Verification
 - Start the car and let the factory virtual cockpit map initialize.
@@ -120,29 +122,29 @@ It routes the secondary CarPlay map video feed (Apple Maps, Google Maps, Waze) t
 
 ## Display & Tuning Options
 
-Out of the box, `Install 791/795B AID 12.3 (AUTO MU)` defaults to **Map-Only (No Card)** for an unobstructed 100% full-screen map, since native guidance already injects all turn arrows, distances, and street names natively into the dials and HUD.
+Out of the box, `Install 791 AID 12.3 (AUTO MU)` defaults to **Map-Only (No Card)** (`40 fps / IDR 5`, `160,20,480,440` safe area) for an unobstructed 100% full-screen map, since native guidance already injects all turn arrows, distances, and street names natively into the dials and HUD.
 
 If you prefer having the CarPlay maneuver turn-box floating on the map screen, you can switch tuning options anytime without reinstalling. In GEM, navigate to:
-$$\text{MQB Toolbox} \rightarrow \text{Customization} \rightarrow \text{CarPlay Maps VC} \rightarrow \text{Display Tuning Options}$$
+$$\text{MQB Toolbox} \rightarrow \text{Customization} \rightarrow \text{CarPlay Maps VC} \rightarrow \text{Display\_Tuning\_Options}$$
 
 | Tuning Option | Description |
 | :--- | :--- |
-| **Map-Only (No Card)** ⭐ *(Default)* | Completely disables the phone turn card box (`.../map` URL), giving you a **100% unobstructed full-screen map** while the car displays all arrows, distances, and road names natively in the cluster. |
-| **Narrow Card** | Displays a 400 px narrow maneuver turn card box positioned cleanly between top and bottom status bars. |
-| **Wide Card** | Displays a 480 px wider maneuver turn card box for higher-visibility route cues. |
+| **Map-Only (No Card)** ⭐ *(Default)* | Completely disables the phone turn card box (`.../map` URL, `40 fps / IDR 5`, `160,20,480,440` safe area), giving you a **100% unobstructed full-screen map** while the car displays all arrows, distances, and road names natively in the cluster. |
+| **Narrow Card** | Displays a 400 px narrow maneuver turn card box (`200,96,400,364` safe area) positioned cleanly between top and bottom status bars. |
+| **Wide Card** | Displays a 480 px wider maneuver turn card box (`160,96,480,364` safe area) for higher-visibility route cues. |
 
 > [!NOTE]
-> All three tuning options share the exact same 340 px safe area height tuned for the 795B cluster. After changing a tuning option, reboot the head unit (hold power knob for 10–15 seconds).
+> After changing a tuning option, reboot the head unit (hold power knob for 10–15 seconds).
 
 ---
 
 ## Uninstallation & Recovery
 
 To remove native guidance, now playing text, or restore the factory system:
-- **Remove Now Playing Text:** In GEM, select `Remove Now Playing text (reboot)` to remove the audio metadata listener and restore stock BAP audio handling.
-- **Temporary Disable Guidance:** In GEM, select `Disable native guidance now (until reboot)` to temporarily disable native guidance without touching installed files.
-- **Remove Guidance:** Select `Remove native guidance (reboot)` to restore the factory iAP2 driver and configuration while keeping base map video streaming.
-- **Full Factory Restore:** Select `Restore factory files` to remove all modifications and revert the head unit to stock.
+- **Remove Now Playing Text:** In GEM (`Now_Playing_Options`), select `Remove Now Playing text (reboot)` to remove the audio metadata listener and restore stock BAP audio handling.
+- **Temporary Disable Guidance:** In GEM (`Native_Guidance_Options`), select `Disable native guidance now (until reboot)` to temporarily disable native guidance without touching installed files.
+- **Remove Guidance:** In GEM (`Native_Guidance_Options`), select `Remove native guidance (reboot)` to restore the factory iAP2 driver and configuration while keeping base map video streaming.
+- **Full Factory Restore:** On the main `CarPlay Maps VC` screen, select `Restore factory files` to remove all modifications and revert the head unit to stock.
 
 Emergency removal can also be executed directly via QNX terminal without the SD card:
 ```sh
