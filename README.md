@@ -106,7 +106,7 @@ It routes the secondary CarPlay map video feed (Apple Maps, Google Maps, Waze) t
 3. Open the **Green Engineering Menu (GEM)**:
    - On the main MQB Toolbox screen, tap **`Update Toolbox`** to copy the latest scripts into the head unit.
    - Re-open GEM and navigate to:
-     $$\text{MQB Toolbox} \rightarrow \text{Customization} \rightarrow \text{CarPlay Maps VC}$$
+     `MQB Toolbox → Customization → CarPlay Maps VC`
 4. **Base Profile:** Select **`Install 791 AID 12.3 (AUTO MU)`**.
 5. **Native Guidance:** Open **`Native_Guidance_Options`** → **`Install full native guidance (MU1427 only)`**.
 6. **Startup Animation (Optional):** Open **`Startup_Animation_Options`** to choose **`Once per boot (default)`**, **`Every connection`**, or **`Off`**.
@@ -125,7 +125,8 @@ It routes the secondary CarPlay map video feed (Apple Maps, Google Maps, Waze) t
 Out of the box, `Install 791 AID 12.3 (AUTO MU)` defaults to **Map-Only (No Card)** (`40 fps / IDR 5`, `160,20,480,440` safe area) for an unobstructed 100% full-screen map, since native guidance already injects all turn arrows, distances, and street names natively into the dials and HUD.
 
 If you prefer having the CarPlay maneuver turn-box floating on the map screen, you can switch tuning options anytime without reinstalling. In GEM, navigate to:
-$$\text{MQB Toolbox} \rightarrow \text{Customization} \rightarrow \text{CarPlay Maps VC} \rightarrow \text{Display\_Tuning\_Options}$$
+
+`MQB Toolbox → Customization → CarPlay Maps VC → Display_Tuning_Options`
 
 | Tuning Option | Description |
 | :--- | :--- |
