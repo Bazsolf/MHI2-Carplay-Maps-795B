@@ -25,9 +25,16 @@
 
 This repository provides an optimized distribution of **CarPlay Maps VC**, **Native Route Guidance**, and **Now Playing Audio Metadata** for Volkswagen MIB2 High / MIB2.5 infotainment systems running **MU1427** (`MHI2_ER_VWG11_K3342`), specifically tuned for the **12.3" Active Info Display (AID 791 / 795B)** virtual cockpit.
 
-<img width="4689" height="2638" alt="IMG_4256" src="https://github.com/user-attachments/assets/3967fc36-2d7c-414b-b463-f95a9d2eb46e" />
-
-<img width="4597" height="2586" alt="IMG_4257" src="https://github.com/user-attachments/assets/220816fa-e54b-4744-9525-197ad9df7e49" />
+<table>
+  <tr>
+    <td width="50%" align="center">
+      <img src="https://github.com/user-attachments/assets/3967fc36-2d7c-414b-b463-f95a9d2eb46e" alt="CarPlay Maps on 12.3&quot; AID 795B" width="100%" />
+    </td>
+    <td width="50%" align="center">
+      <img src="https://github.com/user-attachments/assets/220816fa-e54b-4744-9525-197ad9df7e49" alt="Native Route Guidance on 12.3&quot; AID 795B" width="100%" />
+    </td>
+  </tr>
+</table>
 
 > [!NOTE]
 > **v1.4.1 (Latest Stable Release):**
