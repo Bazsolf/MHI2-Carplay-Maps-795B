@@ -189,9 +189,15 @@ public final class LiveBridge implements TimerNotifier, Runnable {
         out.reset();
         boolean valid=f.active && f.remainingSeconds>=0;
         int minutes=valid?(f.remainingSeconds+59)/60:0;
-        // Remaining duration, not an assumed epoch/timezone for phone ETA.
-        out.timeInfo.timeInfoType=0; out.timeInfo.navigationTimeFormat=0;
-        out.timeInfo.hour=minutes/60; out.timeInfo.minute=minutes%60;
+        int arrival=valid?ArrivalClock.resolve(f.remainingSeconds):-1;
+        if (arrival>=0) {
+            out.timeInfo.timeInfoType=1;
+            out.timeInfo.navigationTimeFormat=ArrivalClock.timeFormat();
+            out.timeInfo.hour=arrival/60; out.timeInfo.minute=arrival%60;
+        } else {
+            out.timeInfo.timeInfoType=0; out.timeInfo.navigationTimeFormat=0;
+            out.timeInfo.hour=minutes/60; out.timeInfo.minute=minutes%60;
+        }
         out.validityInformation.timeInfo_HourIsValid=valid;
         out.validityInformation.timeInfo_MinuteIsValid=valid;
         INSTANCE.writes++; return true;
