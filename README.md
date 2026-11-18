@@ -25,6 +25,10 @@
 
 This repository provides an optimized distribution of **CarPlay Maps VC**, **Native Route Guidance**, and **Now Playing Audio Metadata** for Volkswagen MIB2 High / MIB2.5 infotainment systems running **MU1427** (`MHI2_ER_VWG11_K3342`), specifically tuned for the **12.3" Active Info Display (AID 791 / 795B)** virtual cockpit.
 
+<img width="4689" height="2638" alt="IMG_4256" src="https://github.com/user-attachments/assets/3967fc36-2d7c-414b-b463-f95a9d2eb46e" />
+
+<img width="4597" height="2586" alt="IMG_4257" src="https://github.com/user-attachments/assets/220816fa-e54b-4744-9525-197ad9df7e49" />
+
 > [!NOTE]
 > **v1.4.1 (Latest Stable Release):**
 > - **Video Bridge Priority `14` & AID Startup Animation (from Tomasz's `MU1367-v1.5.3` build):** Updated `altscreen-most-bridge` to run at priority `14` (steadier cluster maps while reverse camera & nav are active) and play the embedded 4.2 s App-Connect startup clip before transitioning cleanly to the live map.
