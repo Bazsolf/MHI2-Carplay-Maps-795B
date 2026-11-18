@@ -6,7 +6,7 @@ set -u
 ACTION=${1:-status}
 PAYLOAD=${2:-}
 BUILD_ID=MU1427-native-guidance-1.4.2-experimental
-JAR_SIZE=57439
+JAR_SIZE=57422
 READER_SIZE=16606
 M=""
 if [ -n "${CPMAP_TEST_ROOT:-}" ]; then M=$CPMAP_TEST_ROOT
