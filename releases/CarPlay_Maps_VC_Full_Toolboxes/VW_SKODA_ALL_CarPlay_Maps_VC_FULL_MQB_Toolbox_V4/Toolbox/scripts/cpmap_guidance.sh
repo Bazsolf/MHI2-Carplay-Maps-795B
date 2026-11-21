@@ -5,7 +5,7 @@
 set -u
 ACTION=${1:-status}
 PAYLOAD=${2:-}
-BUILD_ID=MU1427-native-guidance-1.4.2-experimental
+BUILD_ID=MU1427-native-guidance-1.4.2
 JAR_SIZE=57422
 READER_SIZE=16606
 M=""

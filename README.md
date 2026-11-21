@@ -8,7 +8,7 @@
 [![Platform](https://img.shields.io/badge/platform-MHI2%20%2F%20QNX%206.5-2f6f9f?style=flat-square)](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B)
 [![Firmware](https://img.shields.io/badge/firmware-MU1427%20(K3342)-green?style=flat-square)](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B)
 [![Cluster](https://img.shields.io/badge/cluster-791%20%2F%20795B%20AID%2012.3-green?style=flat-square)](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B)
-[![Release](https://img.shields.io/badge/release-v1.4.1-green?style=flat-square)](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B/releases/tag/v1.4.1)
+[![Release](https://img.shields.io/badge/release-v1.4.2-green?style=flat-square)](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B/releases/tag/v1.4.2)
 
 [Features](#features) • [Installation](#installation) • [Display & Tuning](#display--tuning-options) • [Recovery](#uninstallation--recovery) • [Credits](#credits--acknowledgments)
 
@@ -37,10 +37,9 @@ This repository provides an optimized distribution of **CarPlay Maps VC**, **Nat
 </table>
 
 > [!NOTE]
-> **v1.4.1 (Latest Stable Release):**
-> - **Video Bridge Priority `14` & AID Startup Animation (from Tomasz's `MU1367-v1.5.3` build):** Updated `altscreen-most-bridge` to run at priority `14` (steadier cluster maps while reverse camera & nav are active) and play the embedded 4.2 s App-Connect startup clip before transitioning cleanly to the live map.
-> - **GEM Startup Animation Controls:** Added **`Startup_Animation_Options`** in GEM (`Once per boot (default)`, `Every connection`, `Off`, and `Show current startup animation setting`), preserved across updates.
-> - **Everything from `v1.4.0`:** Tomasz's `v1.5.2` MOST reclaim & 2048-packet backlog, `40 fps / IDR 5` + `160,20,480,440` safe area `core.so`, Apple Maps localized-name fix, context-aware steering wheel zoom & menu suppression, seamless reroute holding, clean text-only Now Playing, and reorganized GEM submenus.
+> **v1.4.2 (Latest Stable Release):**
+> - **Arrival Time (ETA) on the AID (from Tomasz's `MU1367-v1.5.4` build):** When OEM navigation is set to **Arrival time**, CarPlay native guidance now displays the estimated arrival time on the AID using the unit's own clock + remaining route time in the unit's time zone and 12/24 h format (falling back to remaining duration when set to *Time to destination* or before the unit clock is valid).
+> - **Everything from `v1.4.1` & `v1.4.0`:** `MU1367-v1.5.3` `altscreen-most-bridge` (priority `14` + embedded 4.2 s App-Connect AID startup animation + `Startup_Animation_Options` GEM menu), `v1.5.2` MOST reclaim & 2048-packet backlog, `40 fps / IDR 5` + `160,20,480,440` safe area `core.so`, Apple Maps localized-name fix, context-aware steering wheel zoom & menu suppression, seamless reroute holding, clean text-only Now Playing, and reorganized GEM submenus.
 
 It routes the secondary CarPlay map video feed (Apple Maps, Google Maps, Waze) to the center of the digital cluster and translates CarPlay navigation events into native Volkswagen instrument cluster graphics (arrows, distances, and route totals on the AID and HUD).
 
@@ -60,7 +59,7 @@ It routes the secondary CarPlay map video feed (Apple Maps, Google Maps, Waze) t
 - **Native Lane Guidance Arrows:** Injects live lane recommendations (`[ ↑ | ↑ | ↱ ]`) directly into the digital cluster display.
 - **Top-Bar Street / Road Names:** Transmits live current road and street names into the top status bar of the instrument cluster via native BAP `TurnToInfo`.
 - **Native Now Playing Track Text:** Displays real-time Track Title, Artist, and Album in the Virtual Cockpit Audio/Media screen and HUD via native BAP `CurrentStationInfo` when playing music via CarPlay (Spotify, Apple Music, etc.).
-- **Native Route Totals:** Displays remaining travel duration and distance to destination natively across the cluster.
+- **Native Route Totals & Arrival Time (ETA):** Displays remaining travel duration (or estimated arrival time when OEM navigation is set to **Arrival time**) and remaining distance to destination natively across the cluster.
 - **MU1427 AES Encryption Fix:** Resolves the AirPlay 210.81 session key offset mismatch (`session + 0x1c0`) specific to MU1427.
 - **Clean MQB Toolbox Integration:** Fully integrated into the Green Engineering Menu (GEM) under `Customization -> CarPlay Maps VC`.
 
@@ -91,7 +90,7 @@ It routes the secondary CarPlay map video feed (Apple Maps, Google Maps, Waze) t
 ## Installation
 
 ### 1. Preparation
-1. Download the latest release: [`CarPlay_Maps_VC_MU1427_795B_AID_v1.4.1.zip`](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B/releases/tag/v1.4.1).
+1. Download the latest release: [`CarPlay_Maps_VC_MU1427_795B_AID_v1.4.2.zip`](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B/releases/tag/v1.4.2).
 2. Format an SD card (32 GB or smaller) to **FAT32**.
 3. Extract the contents of the ZIP directly to the root of the SD card.
 
