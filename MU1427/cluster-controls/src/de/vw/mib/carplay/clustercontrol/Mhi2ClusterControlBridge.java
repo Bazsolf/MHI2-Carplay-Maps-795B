@@ -1,5 +1,8 @@
 package de.vw.mib.carplay.clustercontrol;
 
+import de.vw.mib.bap.mqbab2.common.api.APIFactory;
+import de.vw.mib.bap.mqbab2.common.api.APIFactoryInterface;
+import de.vw.mib.bap.mqbab2.common.api.navigation.NavigationService;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.net.DatagramPacket;
@@ -7,17 +10,18 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 
 public final class Mhi2ClusterControlBridge {
+    private static final int KEYBOARD_MFW = 4;
     private static final int LOOPBACK_PORT = 7032;
     private static final int QUEUE_SIZE = 16;
-    private static final int MAX_STEPS_PER_EVENT = 4;
     private static final Object LOCK = new Object();
     private static final int[] QUEUE = new int[QUEUE_SIZE];
     private static int queueHead;
     private static int queueTail;
     private static int queueCount;
     private static boolean workerStarted;
-    private static int mapScaleCalls;
-    private static int mapScaleSent;
+    private static int heldKey = -1;
+    private static int keyCalls;
+    private static int keySent;
 
     private Mhi2ClusterControlBridge() {}
 
@@ -32,57 +36,83 @@ public final class Mhi2ClusterControlBridge {
         }
     }
 
-    /**
-     * Legacy DSIKeyPanelDispatcher hook kept as a no-op so scrolling AID menus
-     * never triggers unwanted map zoom; zoom is driven cleanly via BAP MapScale.
-     */
-    public static boolean onKey2(int keyPanel, int keyId, int keyState, int p4, int p5) {
-        return false;
-    }
-
-    /**
-     * Called from hooked BAP NavSD MapScale.setGetProperty(MapScale_SetGet).
-     * Negative steps decrease scale (zoom in); positive steps increase scale (zoom out).
-     */
-    public static void onMapScaleSteps(int steps) {
+    public static int kombiMapVisibility() {
         try {
-            if (steps == 0) {
-                return;
+            if (Boolean.getBoolean("cpmap.test.ready")) {
+                return 1;
             }
-            boolean ready = isCarPlayAltStreamReady();
-            int action = steps < 0 ? Mhi2ClusterKeyState.ACTION_ZOOM_IN : Mhi2ClusterKeyState.ACTION_ZOOM_OUT;
-            int count = steps < 0 ? -steps : steps;
-            if (count > MAX_STEPS_PER_EVENT) {
-                count = MAX_STEPS_PER_EVENT;
+            APIFactoryInterface api = APIFactory.getAPIFactory();
+            if (api == null) {
+                return 0;
             }
-            synchronized (LOCK) {
-                mapScaleCalls++;
-                if (ready) {
-                    startWorkerLocked();
-                    for (int i = 0; i < count; i++) {
-                        enqueueLocked(action);
-                    }
-                    mapScaleSent += count;
-                    LOCK.notifyAll();
-                }
-                writeStatusLocked(steps, ready, commandFor(action));
+            NavigationService nav = api.getNavigationService();
+            if (nav == null) {
+                return 0;
             }
+            return nav.getKombiMapVisibility();
         } catch (Throwable t) {
-            // Never interrupt stock BAP MapScale handling
+            return -1;
         }
     }
 
-    private static void writeStatusLocked(int steps, boolean ready, String cmd) {
+    /**
+     * Short-press steering-wheel up/down (keys 38/39 on MFW keyboard 4) sends zoom-in/zoom-out
+     * over UDP 127.0.0.1:7032 when CarPlay AltStream and kombi map are active.
+     * Repeats while held are ignored until key release; returns false so stock dispatch continues.
+     */
+    public static boolean onKey2(int keyPanel, int keyId, int keyState, int p4, int p5) {
+        try {
+            if (keyPanel != KEYBOARD_MFW) {
+                return false;
+            }
+            if (keyId != Mhi2ClusterKeyState.KEY_UP && keyId != Mhi2ClusterKeyState.KEY_DOWN) {
+                return false;
+            }
+
+            int action = Mhi2ClusterKeyState.ACTION_NONE;
+            boolean ready = isCarPlayAltStreamReady();
+            int vis = kombiMapVisibility();
+
+            synchronized (LOCK) {
+                if (keyState == Mhi2ClusterKeyState.STATE_PRESSED) {
+                    if (heldKey != keyId) {
+                        heldKey = keyId;
+                        action = (keyId == Mhi2ClusterKeyState.KEY_UP)
+                                ? Mhi2ClusterKeyState.ACTION_ZOOM_IN
+                                : Mhi2ClusterKeyState.ACTION_ZOOM_OUT;
+                    }
+                } else if (keyState == Mhi2ClusterKeyState.STATE_RELEASED && heldKey == keyId) {
+                    heldKey = -1;
+                }
+
+                if (action != Mhi2ClusterKeyState.ACTION_NONE) {
+                    keyCalls++;
+                    if (ready && vis == 1) {
+                        startWorkerLocked();
+                        enqueueLocked(action);
+                        keySent++;
+                        LOCK.notifyAll();
+                    }
+                    writeStatusLocked(ready, vis, keyId, keyState);
+                }
+            }
+        } catch (Throwable t) {
+            // Never disrupt stock DSIKeyPanel dispatch
+        }
+        return false;
+    }
+
+    private static void writeStatusLocked(boolean ready, int vis, int keyId, int keyState) {
         try {
             File dir = new File("/ramdisk");
             if (!dir.isDirectory()) {
                 return;
             }
-            FileOutputStream fos = new FileOutputStream("/ramdisk/carplay-mapscale.status");
+            FileOutputStream fos = new FileOutputStream("/ramdisk/carplay-keys.status");
             try {
-                String line = "calls=" + mapScaleCalls + " sent=" + mapScaleSent
-                        + " ready=" + (ready ? 1 : 0) + " last_steps=" + steps
-                        + " last_cmd=" + cmd + "\n";
+                String line = "calls=" + keyCalls + " sent=" + keySent
+                        + " ready=" + (ready ? 1 : 0) + " vis=" + vis
+                        + " last_key=" + keyId + " last_state=" + keyState + "\n";
                 fos.write(line.getBytes("US-ASCII"));
             } finally {
                 fos.close();
