@@ -8,7 +8,7 @@
 [![Platform](https://img.shields.io/badge/platform-MHI2%20%2F%20QNX%206.5-2f6f9f?style=flat-square)](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B)
 [![Firmware](https://img.shields.io/badge/firmware-MU1427%20(K3342)-green?style=flat-square)](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B)
 [![Cluster](https://img.shields.io/badge/cluster-791%20%2F%20795B%20AID%2012.3-green?style=flat-square)](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B)
-[![Release](https://img.shields.io/badge/release-v1.4.2-green?style=flat-square)](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B/releases/tag/v1.4.2)
+[![Release](https://img.shields.io/badge/release-v1.4.4-green?style=flat-square)](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B/releases/tag/v1.4.4)
 
 [Features](#features) • [Installation](#installation) • [Display & Tuning](#display--tuning-options) • [Recovery](#uninstallation--recovery) • [Credits](#credits--acknowledgments)
 
@@ -37,9 +37,11 @@ This repository provides an optimized distribution of **CarPlay Maps VC**, **Nat
 </table>
 
 > [!NOTE]
-> **v1.4.2 (Latest Stable Release):**
-> - **Arrival Time (ETA) on the AID (from Tomasz's `MU1367-v1.5.4` build):** When OEM navigation is set to **Arrival time**, CarPlay native guidance now displays the estimated arrival time on the AID using the unit's own clock + remaining route time in the unit's time zone and 12/24 h format (falling back to remaining duration when set to *Time to destination* or before the unit clock is valid).
-> - **Everything from `v1.4.1` & `v1.4.0`:** `MU1367-v1.5.3` `altscreen-most-bridge` (priority `14` + embedded 4.2 s App-Connect AID startup animation + `Startup_Animation_Options` GEM menu), `v1.5.2` MOST reclaim & 2048-packet backlog, `40 fps / IDR 5` + `160,20,480,440` safe area `core.so`, Apple Maps localized-name fix, context-aware steering wheel zoom & menu suppression, seamless reroute holding, clean text-only Now Playing, and reorganized GEM submenus.
+> **v1.4.4 (Latest Stable Release):**
+> - **Steering Wheel `▲`/`▼` Zoom & AID Destination-List Suppression:** Short-press `▲`/`▼` zooms CarPlay Maps (Apple Maps / Google Maps over USB) when the cluster map is visible (`getKombiMapVisibility() == 1`), ignoring held repeats and disabling all `10` MIB2-supplied destination-list / submenu items in BAP `FunctionList` (*Recent addresses*, *Favorites*, *Cancel guidance*, *Voice guidance*, etc.).
+>   - **Note on the 2-Option AID Popup:** Because `▲`/`▼` CAN presses go directly to the AID (`J285`) cluster firmware, the AID's own built-in 2-item menu (**Cluster map-area dial zoom** + **Back**) can still pop up — that layout toggle is hardcoded inside the AID firmware itself and cannot be suppressed from MIB2. OEM destination lists are also hidden in the AID cluster menu while installed (they still work normally on the center screen).
+> - **Silenced `/ramdisk` Logs:** Redirected `CARPLAY_ALTSCREEN_LOG` and `CARPLAY_SECURITY_BRIDGE_LOG` to `/dev/null` in `dio_manager.wrapper.sh` so long drives cannot fill the 20 MB `/ramdisk`.
+> - **Everything from `v1.4.2` / `v1.4.1` / `v1.4.0`:** AID Arrival Time (ETA) from Tomasz's `MU1367-v1.5.4`, `MU1367-v1.5.3` `altscreen-most-bridge` (priority `14` + embedded 4.2 s App-Connect AID startup animation + `Startup_Animation_Options` GEM menu), `v1.5.2` MOST reclaim & 2048-packet backlog, `40 fps / IDR 5` + `160,20,480,440` safe area `core.so`, Apple Maps localized-name fix, seamless reroute holding, clean text-only Now Playing, and reorganized GEM submenus.
 
 It routes the secondary CarPlay map video feed (Apple Maps, Google Maps, Waze) to the center of the digital cluster and translates CarPlay navigation events into native Volkswagen instrument cluster graphics (arrows, distances, and route totals on the AID and HUD).
 
@@ -47,7 +49,7 @@ It routes the secondary CarPlay map video feed (Apple Maps, Google Maps, Waze) t
 
 ## Features
 
-- **Smart Context-Aware Steering Wheel Controls:** Physical Up/Down steering wheel buttons zoom CarPlay map when actively on the Navigation tab while completely suppressing the "Recent addresses" cluster popup. Seamlessly passes through to OEM menus when navigating other tabs.
+- **Smart Context-Aware Steering Wheel Controls:** Short-press Up/Down (`▲`/`▼`) steering wheel buttons zoom CarPlay Maps (Apple Maps / Google Maps over USB) only when the cluster map is visible, while suppressing all MIB2 destination-list / submenu items (*Recent addresses*, *Favorites*, *Cancel guidance*, *Voice guidance*) via BAP `FunctionList`. *(The AID cluster's own hardcoded 2-item dial-zoom / Back popup is generated locally by the AID `J285` ECU and cannot be blocked from MIB2.)*
 - **Seamless Reroute Holding & Clean Placeholder Arrow:** Keeps route guidance continuously active during mid-journey recalculations with a clean straight arrow, preventing the cluster from dropping to idle and restarting the route loading circle animation.
 - **Smooth Cluster Map Feed (40 FPS / IDR 5):** 40 FPS target with forced IDR keyframes every 5 frames, paired with Tomasz's `v1.5.3` `altscreen-most-bridge` running at **priority 14**, **2048-packet backlog**, and boot-time MOST reclaim — eliminating map freezes, reverse-camera stalls, and post-boot dropouts.
 - **AID Startup Animation:** Plays a 4.2 s App-Connect intro clip when CarPlay takes the cluster map before transitioning cleanly to the live map on a fresh keyframe, configurable in GEM under **`Startup_Animation_Options`** (`Once per boot`, `Every connection`, or `Off`).
@@ -90,7 +92,7 @@ It routes the secondary CarPlay map video feed (Apple Maps, Google Maps, Waze) t
 ## Installation
 
 ### 1. Preparation
-1. Download the latest release: [`CarPlay_Maps_VC_MU1427_795B_AID_v1.4.2.zip`](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B/releases/tag/v1.4.2).
+1. Download the latest release: [`CarPlay_Maps_VC_MU1427_795B_AID_v1.4.4.zip`](https://github.com/Bazsolf/MHI2-Carplay-Maps-795B/releases/tag/v1.4.4).
 2. Format an SD card (32 GB or smaller) to **FAT32**.
 3. Extract the contents of the ZIP directly to the root of the SD card.
 
